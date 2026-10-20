@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.py[cod]
+data/
+results/
+*.pt
+*.npz
+*.npy
+*.h5
+*.pkl

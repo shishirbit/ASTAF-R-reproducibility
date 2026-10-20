@@ -1,0 +1,19 @@
+{
+  "title": "ASTAF-R reproducibility package",
+  "description": "Source code, configurations, preprocessing, validation-only architecture selection, locked-test evaluation, compact common-code baselines, and analysis utilities for the ASTAF-R traffic forecasting study.",
+  "creators": [
+    {"name": "Chauhan, Shishir Singh"},
+    {"name": "Nema, Puneet"},
+    {"name": "Chhabra, Gunjan"},
+    {"name": "Pandey, Ankur"},
+    {"name": "Syal, Surbhi"}
+  ],
+  "license": "MIT",
+  "upload_type": "software",
+  "keywords": [
+    "traffic forecasting",
+    "spatio-temporal forecasting",
+    "graph neural networks",
+    "reproducibility"
+  ]
+}

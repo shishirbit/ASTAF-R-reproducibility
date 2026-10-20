@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the associated article and archived software release."
+title: "ASTAF-R reproducibility package"
+type: software
+version: 0.1.0
+date-released: 2026-10-21
+authors:
+  - family-names: Chauhan
+    given-names: Shishir Singh
+  - family-names: Nema
+    given-names: Puneet
+  - family-names: Chhabra
+    given-names: Gunjan
+  - family-names: Pandey
+    given-names: Ankur
+  - family-names: Syal
+    given-names: Surbhi
+license: MIT
+repository-code: "https://github.com/shishirbit/ASTAF-R-reproducibility"
+keywords:
+  - traffic forecasting
+  - spatio-temporal forecasting
+  - graph neural networks
+  - reproducibility

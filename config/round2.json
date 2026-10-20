@@ -1,0 +1,36 @@
+{
+  "datasets": ["METR-LA", "PeMS-BAY"],
+  "split": {
+    "unit": "raw_timeline_before_windowing",
+    "train": 0.7,
+    "validation": 0.1,
+    "test": 0.2,
+    "input_steps": 12,
+    "forecast_steps": 12,
+    "stride": 1,
+    "sampling_interval_minutes": 5
+  },
+  "seeds": [11, 22, 33],
+  "optimizer": "Adam",
+  "learning_rate": 0.001,
+  "weight_decay": 0.00001,
+  "batch_size": 64,
+  "gradient_clip_norm": 5.0,
+  "selection": {
+    "epochs": 40,
+    "early_stopping_patience": 8,
+    "split": "validation_only"
+  },
+  "locked_test": {
+    "epochs": 60,
+    "early_stopping_patience": 10
+  },
+  "determinism": {
+    "torch_deterministic_algorithms": true,
+    "cudnn_benchmark": false,
+    "cudnn_deterministic": true,
+    "flash_sdp": false,
+    "memory_efficient_sdp": false,
+    "math_sdp": true
+  }
+}
