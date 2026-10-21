@@ -125,10 +125,31 @@ def train_model(
     best_epoch = 0
     stale_epochs = 0
     history = []
-    start_time = time.perf_counter()
     checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
+    start_epoch = 1
+    resumed_from_epoch = 0
+    if checkpoint_path.exists():
+        checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=True)
+        model.load_state_dict(checkpoint["model_state_dict"])
+        best_loss = float(checkpoint["validation_loss"])
+        best_epoch = int(checkpoint["epoch"])
+        resumed_from_epoch = best_epoch
+        start_epoch = best_epoch + 1
+        history = list(checkpoint.get("history", []))
+        if "optimizer_state_dict" in checkpoint:
+            optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+        if "scheduler_state_dict" in checkpoint:
+            scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
+        if "scaler_state_dict" in checkpoint:
+            scaler.load_state_dict(checkpoint["scaler_state_dict"])
+        print(
+            f"RESUME checkpoint={checkpoint_path.name} epoch={best_epoch:03d} "
+            f"best={best_loss:.5f}",
+            flush=True,
+        )
+    start_time = time.perf_counter()
 
-    for epoch in range(1, max_epochs + 1):
+    for epoch in range(start_epoch, max_epochs + 1):
         model.train()
         train_total = 0.0
         train_count = 0
@@ -190,6 +211,10 @@ def train_model(
                     "epoch": epoch,
                     "model_state_dict": model.state_dict(),
                     "validation_loss": validation_loss,
+                    "optimizer_state_dict": optimizer.state_dict(),
+                    "scheduler_state_dict": scheduler.state_dict(),
+                    "scaler_state_dict": scaler.state_dict(),
+                    "history": history,
                 },
                 checkpoint_path,
             )
@@ -207,7 +232,10 @@ def train_model(
     checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=True)
     model.load_state_dict(checkpoint["model_state_dict"])
     return {
-        "epochs_completed": len(history),
+        "epochs_completed": max(
+            [int(item["epoch"]) for item in history], default=resumed_from_epoch
+        ),
+        "resumed_from_epoch": resumed_from_epoch,
         "best_epoch": best_epoch,
         "best_validation_mae_normalized": best_loss,
         "history": history,
