@@ -1,0 +1,7 @@
+dataset,seed_a,seed_b,adjacency_pearson,mean_top20_jaccard
+METR-LA,11,22,1,1
+METR-LA,11,33,1,1
+METR-LA,22,33,1,1
+PeMS-BAY,11,22,1,1
+PeMS-BAY,11,33,1,1
+PeMS-BAY,22,33,1,1

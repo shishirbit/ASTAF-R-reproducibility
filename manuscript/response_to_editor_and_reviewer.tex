@@ -1,0 +1,114 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs,longtable,array,xcolor,url,hyperref}
+\setlength{\emergencystretch}{4em}
+\sloppy
+\definecolor{responseblue}{RGB}{0,70,140}
+\newcommand{\response}[1]{\par\noindent\textcolor{responseblue}{\textbf{Response:} #1}\par}
+\begin{document}
+\begin{center}\Large\textbf{Response to the In-house Editor and Reviewer 1}\end{center}
+\noindent Manuscript: \textit{ASTAF-R: An Ablation-Guided Spatio-Temporal Framework for Multi-Horizon Traffic Prediction}
+
+\section*{In-house editor}
+\textbf{Comment.} Make the complete source code and all materials required to
+reproduce the experiments publicly available, and provide a direct repository link.
+
+\response{The complete preprocessing, model, training, evaluation, compact
+baseline, analysis, and figure-generation code is publicly accessible at
+\url{https://github.com/shishirbit/ASTAF-R-reproducibility}. The repository includes dependency specifications,
+configuration values, seeds 11/22/33, data instructions, exact commands, and
+run metadata. A versioned GitHub release will be archived in Zenodo; the DOI
+field is reserved as \texttt{ZENODO-DOI-PENDING-VERSIONED-RELEASE} and will be replaced by the
+minted DOI before submission. The manuscript Code Availability statement now
+contains both direct links.}
+
+\section*{Reviewer 1}
+\textbf{Comment 1.} Ensure that stride-one 12-to-12 windows do not generate
+overlap leakage across split boundaries and report precise boundary management.
+
+\response{The raw timeline is now split before any windows are constructed.
+Windows are generated independently inside each segment. METR-LA uses raw
+intervals [0,23990), [23990,27417), and [27417,34272), producing
+23,967/3,404/6,832 windows. PeMS-BAY uses [0,36473), [36473,41683), and
+[41683,52105), producing 36,450/5,188/10,398 windows. Every run records the
+first and last input and target timestamps. The raw-observation intersections
+between training, validation, and test sets are empty.}
+
+\textbf{Comment 2.} Strengthen the justification for DCRNN-, STGCN-, Graph
+WaveNet-, AGCRN-, STID-, and Transformer-style baselines, which are compact
+reimplementations rather than official implementations.
+
+\response{We retain these models strictly as compact common-code controls.
+The manuscript now states this limitation in the abstract, experimental setup,
+results, captions, conclusion, and Code Availability statement. All controls
+share identical windows, masks, optimizer family, stopping rule, and metrics.
+We do not describe them as faithful official reproductions and make no claim
+against the best published or officially tuned versions.}
+
+\textbf{Comment 3.} Clarify component selection because the two-block,
+top-$k=20$ model slightly outperforms one graph block and top-$k=40$ on one
+validation comparison, and learned decomposition is similar to simpler alternatives.
+
+\response{Selection is now stated exactly. Nine principal candidates were run
+with three seeds on both datasets, and the frozen criterion was mean
+across-dataset relative validation MAE. The two-block top-$k=40$ candidate had
+a relative score of 1.000691, compared with 1.000794 for two-block top-$k=20$;
+the one-block candidate scored 1.003317. The difference is narrow, and the
+manuscript does not claim a unique optimum. Decomposition-disabled, fixed, and
+learned variants are all reported; their close performance is explicitly
+interpreted as insufficient evidence for a uniquely superior fusion rule.}
+
+\textbf{Comment 4.} Confirm the reported cross-seed graph correlation and
+top-20 Jaccard values of 1.000 with greater precision and initialization detail.
+
+\response{The values are 1.000000000000 for all six seed pairs. A checkpoint
+audit revealed why: although source and target graph embeddings were initialized
+with seed-dependent Xavier-uniform values, both matrices have zero norm at every
+restored best checkpoint. All logits are therefore zero; deterministic top-$k$
+tie handling selects the same 40 entries, each with weight 0.025. We now report
+this as graph-parameter collapse, not remarkable adaptive-topology robustness.
+The title and claims no longer rely on learned-topology recovery.}
+
+\textbf{Comment 5.} Account more effectively for seed variability.
+
+\response{All learned primary models now use seeds 11, 22, and 33. ASTAF-R
+obtains 2.995$\pm$0.008 mph on METR-LA and
+1.542$\pm$0.001 mph on PeMS-BAY. We provide
+seed-paired differences and exact sign-flip tests, while noting that three seeds
+give a minimum two-sided exact $p$ value of 0.25. We additionally aggregate
+errors into non-overlapping calendar-day blocks (24 days per METR-LA seed and
+37 per PeMS-BAY seed) and report deterministic 10,000-repetition bootstrap
+intervals.}
+
+\textbf{Comment 6.} Discuss the trade-off between accuracy and substantially
+higher inference memory/latency than simpler baselines.
+
+\response{A dedicated efficiency table now reports parameter count, profiler
+FLOPs, synchronized inference latency, and peak GPU memory for each dataset and
+model. The discussion states directly that ASTAF-R is not preferred when minimum
+latency or memory dominates accuracy and that the measurements are specific to
+the recorded laptop GPU and software environment.}
+
+\textbf{Comment 7.} Keep generality claims minimal because evaluation is
+limited to two regularly sampled California freeway-speed datasets without
+exogenous variables.
+
+\response{The abstract, Results, Scope, and Conclusion now limit every claim to
+the controlled METR-LA and PeMS-BAY protocol. We explicitly exclude claims of
+universal superiority, geographic transfer, irregular-sampling robustness,
+exogenous-variable fusion, and calibrated uncertainty forecasting.}
+
+\section*{Summary of principal changes}
+\begin{itemize}
+\item Raw timelines are split before windows; exact temporal boundaries and
+zero overlap are recorded.
+\item Ninety-four validation runs and fifty locked-test runs are reported.
+\item Architecture selection, locked evaluation, seed analysis, and day-block
+analysis are separated.
+\item Graph identity across seeds is explained as zero-embedding collapse.
+\item Accuracy--latency--memory trade-offs and baseline scope are explicit.
+\item The manuscript is deterministic and contains no uncertainty-performance claim.
+\item Complete code is public, with a Zenodo DOI to be inserted after the
+versioned release is archived.
+\end{itemize}
+\end{document}

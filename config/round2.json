@@ -19,7 +19,17 @@
   "selection": {
     "epochs": 40,
     "early_stopping_patience": 8,
-    "split": "validation_only"
+    "split": "validation_only",
+    "criterion": "mean_across_dataset_relative_validation_MAE",
+    "selected_candidate": "plus_topk40_64",
+    "selected_model": {
+      "hidden_dim": 64,
+      "attention_mode": "residual",
+      "graph_top_k": 40,
+      "graph_layers": 2,
+      "decomposition_mode": "learned",
+      "residual_output": true
+    }
   },
   "locked_test": {
     "epochs": 60,
@@ -32,5 +42,14 @@
     "flash_sdp": false,
     "memory_efficient_sdp": false,
     "math_sdp": true
+  },
+  "reported_environment": {
+    "python": "3.13.9",
+    "pytorch": "2.11.0+cu128",
+    "cuda_runtime": "12.8",
+    "numpy": "2.5.1",
+    "scipy": "1.18.0",
+    "gpu": "NVIDIA GeForce RTX 5060 Laptop GPU",
+    "gpu_memory_gib": 7.96
   }
 }

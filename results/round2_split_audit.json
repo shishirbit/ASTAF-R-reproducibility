@@ -1,0 +1,114 @@
+{
+  "METR-LA": {
+    "intersections": {
+      "train_validation": 0,
+      "train_test": 0,
+      "validation_test": 0
+    },
+    "dataset_summary": {
+      "dataset": "METR-LA",
+      "time_points": 34272,
+      "nodes": 207,
+      "train_windows": 23967,
+      "validation_windows": 3404,
+      "test_windows": 6832,
+      "training_mean": 58.58426284790039,
+      "training_std": 12.822882652282715,
+      "missing_or_zero_fraction": 0.08109350825676487,
+      "adjacency_source": "standard DCRNN-compatible METR-LA distance adjacency",
+      "split": "raw-timeline chronological 70/10/20; windows built independently within each segment",
+      "split_boundaries": {
+        "train": {
+          "raw_segment_start_index": 0,
+          "raw_segment_end_index_exclusive": 23990,
+          "raw_segment_start_timestamp": "2012-03-01T00:00",
+          "raw_segment_end_timestamp": "2012-05-23T07:05",
+          "first_input_timestamp": "2012-03-01T00:00",
+          "first_target_timestamp": "2012-03-01T01:00",
+          "last_input_timestamp": "2012-05-23T06:05",
+          "last_target_timestamp": "2012-05-23T07:05"
+        },
+        "val": {
+          "raw_segment_start_index": 23990,
+          "raw_segment_end_index_exclusive": 27417,
+          "raw_segment_start_timestamp": "2012-05-23T07:10",
+          "raw_segment_end_timestamp": "2012-06-04T04:40",
+          "first_input_timestamp": "2012-05-23T07:10",
+          "first_target_timestamp": "2012-05-23T08:10",
+          "last_input_timestamp": "2012-06-04T03:40",
+          "last_target_timestamp": "2012-06-04T04:40"
+        },
+        "test": {
+          "raw_segment_start_index": 27417,
+          "raw_segment_end_index_exclusive": 34272,
+          "raw_segment_start_timestamp": "2012-06-04T04:45",
+          "raw_segment_end_timestamp": "2012-06-27T23:55",
+          "first_input_timestamp": "2012-06-04T04:45",
+          "first_target_timestamp": "2012-06-04T05:45",
+          "last_input_timestamp": "2012-06-27T22:55",
+          "last_target_timestamp": "2012-06-27T23:55"
+        }
+      },
+      "raw_observation_overlap_across_splits": false,
+      "input_steps": 12,
+      "forecast_steps": 12,
+      "sampling_interval_minutes": 5
+    }
+  },
+  "PeMS-BAY": {
+    "intersections": {
+      "train_validation": 0,
+      "train_test": 0,
+      "validation_test": 0
+    },
+    "dataset_summary": {
+      "dataset": "PeMS-BAY",
+      "time_points": 52105,
+      "nodes": 325,
+      "train_windows": 36450,
+      "validation_windows": 5188,
+      "test_windows": 10398,
+      "training_mean": 62.73627853393555,
+      "training_std": 9.434618949890137,
+      "missing_or_zero_fraction": 3.076627815136596e-05,
+      "adjacency_source": "provided PeMS-BAY adjacency matrix",
+      "split": "raw-timeline chronological 70/10/20; windows built independently within each segment",
+      "split_boundaries": {
+        "train": {
+          "raw_segment_start_index": 0,
+          "raw_segment_end_index_exclusive": 36473,
+          "raw_segment_start_timestamp": "2017-01-01T00:55-08:00",
+          "raw_segment_end_timestamp": "2017-05-07T17:15-07:00",
+          "first_input_timestamp": "2017-01-01T00:55-08:00",
+          "first_target_timestamp": "2017-01-01T01:55-08:00",
+          "last_input_timestamp": "2017-05-07T16:15-07:00",
+          "last_target_timestamp": "2017-05-07T17:15-07:00"
+        },
+        "val": {
+          "raw_segment_start_index": 36473,
+          "raw_segment_end_index_exclusive": 41684,
+          "raw_segment_start_timestamp": "2017-05-07T17:20-07:00",
+          "raw_segment_end_timestamp": "2017-05-25T19:30-07:00",
+          "first_input_timestamp": "2017-05-07T17:20-07:00",
+          "first_target_timestamp": "2017-05-07T18:20-07:00",
+          "last_input_timestamp": "2017-05-25T18:30-07:00",
+          "last_target_timestamp": "2017-05-25T19:30-07:00"
+        },
+        "test": {
+          "raw_segment_start_index": 41684,
+          "raw_segment_end_index_exclusive": 52105,
+          "raw_segment_start_timestamp": "2017-05-25T19:35-07:00",
+          "raw_segment_end_timestamp": "2017-06-30T23:55-07:00",
+          "first_input_timestamp": "2017-05-25T19:35-07:00",
+          "first_target_timestamp": "2017-05-25T20:35-07:00",
+          "last_input_timestamp": "2017-06-30T22:55-07:00",
+          "last_target_timestamp": "2017-06-30T23:55-07:00"
+        }
+      },
+      "raw_observation_overlap_across_splits": false,
+      "input_steps": 12,
+      "forecast_steps": 12,
+      "sampling_interval_minutes": 5
+    }
+  }
+}

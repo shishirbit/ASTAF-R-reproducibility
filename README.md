@@ -6,7 +6,7 @@ table generation code used for the ASTAF-R study.
 
 ## 1. Environment
 
-Python 3.12 was used for the reported runs. Create an isolated environment and
+Python 3.13.9 was used for the reported runs. Create an isolated environment and
 install the pinned dependencies:
 
 ```bash
@@ -33,9 +33,9 @@ experiment artifacts below in `data/`:
 | `pems_node_values.npy` | 52,105 x 325 x 2 speed/calendar array | `6e1503b6d76a46dd6f282468d76c14cdda0cb99073ba9edb77897594895b8eb9` |
 | `pems_adj_mat.npy` | 325 x 325 PeMS-BAY graph | `bfe332913480221f0c1e67ff6c7a5ea8896a70a8fc2f6ff04b052842b91072b9` |
 
-The release archive associated with the paper must contain the two NumPy
-artifacts or provide their permanent download URL. Run `python verify_data.py`
-before training. No dataset-wide statistic is fitted: `revision_data.py`
+The benchmark arrays are not redistributed by this code repository. Obtain them
+from the cited public sources and run `python verify_data.py` before training.
+No dataset-wide statistic is fitted: `revision_data.py`
 partitions the raw timeline first, estimates normalization from valid training
 observations only, and builds stride-one windows independently inside each
 split.
@@ -82,6 +82,18 @@ dataset boundaries, early-stopping history, parameter count, timing, and test
 metrics. NPZ files contain predictions, targets, masks, horizon errors, and
 learned graph artifacts.
 
+Regenerate the seed-aware, calendar-day-block, and graph analyses plus all
+comparison figures:
+
+```bash
+python experiments/analyze_round2_results.py
+```
+
+The published archive contains 94 validation records and 50 locked-test
+records. Model checkpoints are omitted because every run is fully reproducible
+from the source, configuration, seed, and public data; run-level JSON and NPZ
+prediction/diagnostic artifacts are retained.
+
 ## 5. Source map
 
 - `experiments/revision_data.py`: loading, missing-value handling,
@@ -95,8 +107,12 @@ learned graph artifacts.
   orchestration.
 - `experiments/audit_split_integrity.py`: explicit intersection audit for raw
   observations used by each split.
-- `results/` (added with the final versioned release): machine-readable run
+- `experiments/analyze_round2_results.py`: seed-aware, calendar-day-block, and
+  full-precision graph diagnostics plus manuscript figures.
+- `results/`: machine-readable run
   records, seed-aware statistics, graph diagnostics, tables, and plots.
+- `manuscript/`: clean and highlighted LaTeX sources/PDFs plus the editor and
+  reviewer response sheet.
 
 The DCRNN-, STGCN-, Graph WaveNet-, AGCRN-, STID-, and Transformer-style models
 in `revision_models.py` are compact common-code controls, not the authors'
@@ -109,6 +125,11 @@ The final run records contain the exact GPU, CUDA, PyTorch, Python, NumPy, and
 SciPy versions. Runtime depends strongly on hardware. The full queue includes
 multi-seed selection, diagnostic controls, two-dataset locked evaluation, and
 profiling; allow at least one to two days on a single laptop GPU.
+
+The selected checkpoints produced identical top-40 graph supports because the
+source and target graph embeddings converged to zero. The repository reports
+this behavior explicitly as graph-parameter collapse, not evidence of robust
+adaptive-topology recovery.
 
 ## 7. License and citation
 

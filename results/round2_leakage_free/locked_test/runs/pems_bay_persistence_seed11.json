@@ -1,0 +1,197 @@
+{
+  "run_id": "pems_bay_persistence_seed11",
+  "dataset": "PeMS-BAY",
+  "model": "persistence",
+  "seed": 11,
+  "protocol": {
+    "normalization": "global z-score estimated on valid training-period values only",
+    "missing_values": "zeros treated as unavailable; mean-imputed in inputs and masked in targets",
+    "loss": "masked MAE",
+    "optimizer": "Adam",
+    "learning_rate": 0.001,
+    "weight_decay": 1e-05,
+    "batch_size": 64,
+    "hidden_dim": 64,
+    "max_epochs": 60,
+    "early_stopping_patience": 10,
+    "gradient_clip_norm": 5.0,
+    "random_seed": 11,
+    "mixed_precision": true,
+    "overrides": {}
+  },
+  "dataset_summary": {
+    "dataset": "PeMS-BAY",
+    "time_points": 52105,
+    "nodes": 325,
+    "train_windows": 36450,
+    "validation_windows": 5188,
+    "test_windows": 10398,
+    "training_mean": 62.73627853393555,
+    "training_std": 9.434618949890137,
+    "missing_or_zero_fraction": 3.076627815136596e-05,
+    "adjacency_source": "provided PeMS-BAY adjacency matrix",
+    "split": "raw-timeline chronological 70/10/20; windows built independently within each segment",
+    "split_boundaries": {
+      "train": {
+        "raw_segment_start_index": 0,
+        "raw_segment_end_index_exclusive": 36473,
+        "raw_segment_start_timestamp": "2017-01-01T00:55-08:00",
+        "raw_segment_end_timestamp": "2017-05-07T17:15-07:00",
+        "first_input_timestamp": "2017-01-01T00:55-08:00",
+        "first_target_timestamp": "2017-01-01T01:55-08:00",
+        "last_input_timestamp": "2017-05-07T16:15-07:00",
+        "last_target_timestamp": "2017-05-07T17:15-07:00"
+      },
+      "val": {
+        "raw_segment_start_index": 36473,
+        "raw_segment_end_index_exclusive": 41684,
+        "raw_segment_start_timestamp": "2017-05-07T17:20-07:00",
+        "raw_segment_end_timestamp": "2017-05-25T19:30-07:00",
+        "first_input_timestamp": "2017-05-07T17:20-07:00",
+        "first_target_timestamp": "2017-05-07T18:20-07:00",
+        "last_input_timestamp": "2017-05-25T18:30-07:00",
+        "last_target_timestamp": "2017-05-25T19:30-07:00"
+      },
+      "test": {
+        "raw_segment_start_index": 41684,
+        "raw_segment_end_index_exclusive": 52105,
+        "raw_segment_start_timestamp": "2017-05-25T19:35-07:00",
+        "raw_segment_end_timestamp": "2017-06-30T23:55-07:00",
+        "first_input_timestamp": "2017-05-25T19:35-07:00",
+        "first_target_timestamp": "2017-05-25T20:35-07:00",
+        "last_input_timestamp": "2017-06-30T22:55-07:00",
+        "last_target_timestamp": "2017-06-30T23:55-07:00"
+      }
+    },
+    "raw_observation_overlap_across_splits": false,
+    "input_steps": 12,
+    "forecast_steps": 12,
+    "sampling_interval_minutes": 5
+  },
+  "environment": {
+    "host": "LAPTOP-K5T5QS0S",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.9",
+    "torch": "2.11.0+cu128",
+    "numpy": "2.5.1",
+    "scipy": "1.18.0",
+    "device": "cuda:0",
+    "cuda_available": true,
+    "gpu": "NVIDIA GeForce RTX 5060 Laptop GPU",
+    "cuda_runtime": "12.8",
+    "gpu_total_memory_gib": 7.96
+  },
+  "parameters": 0,
+  "profiled_flops_batch1": null,
+  "training": {
+    "epochs_completed": 0,
+    "best_epoch": 0,
+    "best_validation_mae_normalized": null,
+    "history": [],
+    "training_seconds": 0.0
+  },
+  "test": {
+    "MAE": 2.1695277278471528,
+    "RMSE": 5.122909488151893,
+    "MAPE_percent": 4.67074530427928,
+    "valid_targets": 40549596,
+    "per_horizon": {
+      "1": {
+        "MAE": 0.9716048098658924,
+        "RMSE": 1.7786865737922566,
+        "MAPE_percent": 1.8511138449022035,
+        "valid_targets": 3379133
+      },
+      "2": {
+        "MAE": 1.3272306030843377,
+        "RMSE": 2.669627484583926,
+        "MAPE_percent": 2.626693237364546,
+        "valid_targets": 3379133
+      },
+      "3": {
+        "MAE": 1.59127319280197,
+        "RMSE": 3.385504520537478,
+        "MAPE_percent": 3.231693531445967,
+        "valid_targets": 3379133
+      },
+      "4": {
+        "MAE": 1.8085899938936814,
+        "RMSE": 3.983482301734011,
+        "MAPE_percent": 3.7501079737873844,
+        "valid_targets": 3379133
+      },
+      "5": {
+        "MAE": 1.9977971674797943,
+        "RMSE": 4.495826669214364,
+        "MAPE_percent": 4.212760954474988,
+        "valid_targets": 3379133
+      },
+      "6": {
+        "MAE": 2.1711515326541417,
+        "RMSE": 4.947253370155115,
+        "MAPE_percent": 4.642044765073528,
+        "valid_targets": 3379133
+      },
+      "7": {
+        "MAE": 2.3328600602765563,
+        "RMSE": 5.353981865940445,
+        "MAPE_percent": 5.045890388437551,
+        "valid_targets": 3379133
+      },
+      "8": {
+        "MAE": 2.486038736616667,
+        "RMSE": 5.725134374999386,
+        "MAPE_percent": 5.430243446615215,
+        "valid_targets": 3379133
+      },
+      "9": {
+        "MAE": 2.6314331827359636,
+        "RMSE": 6.067770658212947,
+        "MAPE_percent": 5.796293172029133,
+        "valid_targets": 3379133
+      },
+      "10": {
+        "MAE": 2.7710411833542063,
+        "RMSE": 6.3886969314488145,
+        "MAPE_percent": 6.1486924600759565,
+        "valid_targets": 3379133
+      },
+      "11": {
+        "MAE": 2.9060903933697637,
+        "RMSE": 6.692265387210768,
+        "MAPE_percent": 6.489134376780574,
+        "valid_targets": 3379133
+      },
+      "12": {
+        "MAE": 3.0392219523053323,
+        "RMSE": 6.982853643801271,
+        "MAPE_percent": 6.824275641250811,
+        "valid_targets": 3379133
+      }
+    },
+    "reported_horizons": {
+      "15_min": {
+        "MAE": 1.59127319280197,
+        "RMSE": 3.385504520537478,
+        "MAPE_percent": 3.231693531445967,
+        "valid_targets": 3379133
+      },
+      "30_min": {
+        "MAE": 2.1711515326541417,
+        "RMSE": 4.947253370155115,
+        "MAPE_percent": 4.642044765073528,
+        "valid_targets": 3379133
+      },
+      "60_min": {
+        "MAE": 3.0392219523053323,
+        "RMSE": 6.982853643801271,
+        "MAPE_percent": 6.824275641250811,
+        "valid_targets": 3379133
+      }
+    },
+    "mean_inference_ms_per_batch": 0.11873851105084886,
+    "inference_ms_per_sample": 0.001838517049354363,
+    "peak_gpu_memory_mib": 19.15478515625
+  },
+  "learned_values": {}
+}

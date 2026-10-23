@@ -1,0 +1,66 @@
+{
+  "selection_split": "validation only; test outcomes unavailable at selection time",
+  "criterion": "mean across-dataset relative validation MAE; lower is better",
+  "datasets": [
+    "METR-LA",
+    "PeMS-BAY"
+  ],
+  "candidate_validation_mae": {
+    "plus_fast64": {
+      "METR-LA": 2.951737385309556,
+      "PeMS-BAY": 1.6557634453045955
+    },
+    "plus_resattn64": {
+      "METR-LA": 2.7711144853360703,
+      "PeMS-BAY": 1.5735054367150527
+    },
+    "plus_mandatory64": {
+      "METR-LA": 2.8456606979339134,
+      "PeMS-BAY": 1.6170759022222736
+    },
+    "plus_decomp_off64": {
+      "METR-LA": 2.7730834130239983,
+      "PeMS-BAY": 1.5772834494098043
+    },
+    "plus_decomp_fixed64": {
+      "METR-LA": 2.775098896366424,
+      "PeMS-BAY": 1.5710099882829016
+    },
+    "plus_topk40_64": {
+      "METR-LA": 2.7743134512145833,
+      "PeMS-BAY": 1.5713660667577376
+    },
+    "plus_graph1_64": {
+      "METR-LA": 2.780418280018477,
+      "PeMS-BAY": 1.576158965968269
+    },
+    "plus_no_residual64": {
+      "METR-LA": 2.7852308235595697,
+      "PeMS-BAY": 1.5960901187584116
+    },
+    "plus_scales13_64": {
+      "METR-LA": 2.774649961471365,
+      "PeMS-BAY": 1.576833740858141
+    }
+  },
+  "relative_scores": {
+    "plus_fast64": 1.0595644933229473,
+    "plus_resattn64": 1.0007942178760043,
+    "plus_mandatory64": 1.0281118249132728,
+    "plus_decomp_off64": 1.0023518922872996,
+    "plus_decomp_fixed64": 1.000718918516618,
+    "plus_topk40_64": 1.000690526317048,
+    "plus_graph1_64": 1.0033174575041426,
+    "plus_no_residual64": 1.0105292184416494,
+    "plus_scales13_64": 1.0024914218311132
+  },
+  "selected_candidate": "plus_topk40_64",
+  "selected_specification": {
+    "model": "astafr_plus",
+    "hidden_dim": 64,
+    "overrides": {
+      "attention_mode": "residual",
+      "graph_top_k": 40
+    }
+  }
+}

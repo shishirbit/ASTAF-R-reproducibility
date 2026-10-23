@@ -1,0 +1,197 @@
+{
+  "run_id": "metr_la_persistence_seed11",
+  "dataset": "METR-LA",
+  "model": "persistence",
+  "seed": 11,
+  "protocol": {
+    "normalization": "global z-score estimated on valid training-period values only",
+    "missing_values": "zeros treated as unavailable; mean-imputed in inputs and masked in targets",
+    "loss": "masked MAE",
+    "optimizer": "Adam",
+    "learning_rate": 0.001,
+    "weight_decay": 1e-05,
+    "batch_size": 64,
+    "hidden_dim": 64,
+    "max_epochs": 60,
+    "early_stopping_patience": 10,
+    "gradient_clip_norm": 5.0,
+    "random_seed": 11,
+    "mixed_precision": true,
+    "overrides": {}
+  },
+  "dataset_summary": {
+    "dataset": "METR-LA",
+    "time_points": 34272,
+    "nodes": 207,
+    "train_windows": 23967,
+    "validation_windows": 3404,
+    "test_windows": 6832,
+    "training_mean": 58.58426284790039,
+    "training_std": 12.822882652282715,
+    "missing_or_zero_fraction": 0.08109350825676487,
+    "adjacency_source": "standard DCRNN-compatible METR-LA distance adjacency",
+    "split": "raw-timeline chronological 70/10/20; windows built independently within each segment",
+    "split_boundaries": {
+      "train": {
+        "raw_segment_start_index": 0,
+        "raw_segment_end_index_exclusive": 23990,
+        "raw_segment_start_timestamp": "2012-03-01T00:00",
+        "raw_segment_end_timestamp": "2012-05-23T07:05",
+        "first_input_timestamp": "2012-03-01T00:00",
+        "first_target_timestamp": "2012-03-01T01:00",
+        "last_input_timestamp": "2012-05-23T06:05",
+        "last_target_timestamp": "2012-05-23T07:05"
+      },
+      "val": {
+        "raw_segment_start_index": 23990,
+        "raw_segment_end_index_exclusive": 27417,
+        "raw_segment_start_timestamp": "2012-05-23T07:10",
+        "raw_segment_end_timestamp": "2012-06-04T04:40",
+        "first_input_timestamp": "2012-05-23T07:10",
+        "first_target_timestamp": "2012-05-23T08:10",
+        "last_input_timestamp": "2012-06-04T03:40",
+        "last_target_timestamp": "2012-06-04T04:40"
+      },
+      "test": {
+        "raw_segment_start_index": 27417,
+        "raw_segment_end_index_exclusive": 34272,
+        "raw_segment_start_timestamp": "2012-06-04T04:45",
+        "raw_segment_end_timestamp": "2012-06-27T23:55",
+        "first_input_timestamp": "2012-06-04T04:45",
+        "first_target_timestamp": "2012-06-04T05:45",
+        "last_input_timestamp": "2012-06-27T22:55",
+        "last_target_timestamp": "2012-06-27T23:55"
+      }
+    },
+    "raw_observation_overlap_across_splits": false,
+    "input_steps": 12,
+    "forecast_steps": 12,
+    "sampling_interval_minutes": 5
+  },
+  "environment": {
+    "host": "LAPTOP-K5T5QS0S",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.9",
+    "torch": "2.11.0+cu128",
+    "numpy": "2.5.1",
+    "scipy": "1.18.0",
+    "device": "cuda:0",
+    "cuda_available": true,
+    "gpu": "NVIDIA GeForce RTX 5060 Laptop GPU",
+    "cuda_runtime": "12.8",
+    "gpu_total_memory_gib": 7.96
+  },
+  "parameters": 0,
+  "profiled_flops_batch1": null,
+  "training": {
+    "epochs_completed": 0,
+    "best_epoch": 0,
+    "best_validation_mae_normalized": null,
+    "history": [],
+    "training_seconds": 0.0
+  },
+  "test": {
+    "MAE": 4.2861081160310235,
+    "RMSE": 8.214150715346065,
+    "MAPE_percent": 11.166700949721788,
+    "valid_targets": 14910564,
+    "per_horizon": {
+      "1": {
+        "MAE": 2.8322799261415765,
+        "RMSE": 4.668328671460833,
+        "MAPE_percent": 6.5760187752821055,
+        "valid_targets": 1242580
+      },
+      "2": {
+        "MAE": 3.2378178893569354,
+        "RMSE": 5.727649562422137,
+        "MAPE_percent": 7.844326850390298,
+        "valid_targets": 1242574
+      },
+      "3": {
+        "MAE": 3.533694650539246,
+        "RMSE": 6.46270199156585,
+        "MAPE_percent": 8.775696327816156,
+        "valid_targets": 1242568
+      },
+      "4": {
+        "MAE": 3.789741789112246,
+        "RMSE": 7.069252009486056,
+        "MAPE_percent": 9.600863588069448,
+        "valid_targets": 1242562
+      },
+      "5": {
+        "MAE": 4.025470799722131,
+        "RMSE": 7.599947979222971,
+        "MAPE_percent": 10.361805680363481,
+        "valid_targets": 1242556
+      },
+      "6": {
+        "MAE": 4.254968139800712,
+        "RMSE": 8.088372674430378,
+        "MAPE_percent": 11.101684484350951,
+        "valid_targets": 1242550
+      },
+      "7": {
+        "MAE": 4.471769181076913,
+        "RMSE": 8.52974588859974,
+        "MAPE_percent": 11.779842664190355,
+        "valid_targets": 1242544
+      },
+      "8": {
+        "MAE": 4.677326656709895,
+        "RMSE": 8.938280781070684,
+        "MAPE_percent": 12.425996880268443,
+        "valid_targets": 1242538
+      },
+      "9": {
+        "MAE": 4.870184433394497,
+        "RMSE": 9.313608331981094,
+        "MAPE_percent": 13.023260263407742,
+        "valid_targets": 1242532
+      },
+      "10": {
+        "MAE": 5.062021187474774,
+        "RMSE": 9.673691231152757,
+        "MAPE_percent": 13.597374834867523,
+        "valid_targets": 1242526
+      },
+      "11": {
+        "MAE": 5.247160395993217,
+        "RMSE": 10.01270811437534,
+        "MAPE_percent": 14.16414692386305,
+        "valid_targets": 1242520
+      },
+      "12": {
+        "MAE": 5.431019041818109,
+        "RMSE": 10.34040860854306,
+        "MAPE_percent": 14.74988808084943,
+        "valid_targets": 1242514
+      }
+    },
+    "reported_horizons": {
+      "15_min": {
+        "MAE": 3.533694650539246,
+        "RMSE": 6.46270199156585,
+        "MAPE_percent": 8.775696327816156,
+        "valid_targets": 1242568
+      },
+      "30_min": {
+        "MAE": 4.254968139800712,
+        "RMSE": 8.088372674430378,
+        "MAPE_percent": 11.101684484350951,
+        "valid_targets": 1242550
+      },
+      "60_min": {
+        "MAE": 5.431019041818109,
+        "RMSE": 10.34040860854306,
+        "MAPE_percent": 14.74988808084943,
+        "valid_targets": 1242514
+      }
+    },
+    "mean_inference_ms_per_batch": 0.09093904781842693,
+    "inference_ms_per_sample": 0.0013976288086848402,
+    "peak_gpu_memory_mib": 18.46337890625
+  },
+  "learned_values": {}
+}
