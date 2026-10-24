@@ -136,7 +136,6 @@ adaptive-topology recovery.
 ## 7. License and citation
 
 Code is released under the MIT License; benchmark data remain under their
-original providers' terms. The versioned reproducibility package has reserved
-[Zenodo DOI 10.5281/zenodo.23611484](https://doi.org/10.5281/zenodo.23611484).
-The Zenodo record becomes publicly accessible when its deposit is published.
+original providers' terms. The versioned reproducibility package is archived
+at [Zenodo DOI 10.5281/zenodo.23611484](https://doi.org/10.5281/zenodo.23611484).
 
