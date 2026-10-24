@@ -109,10 +109,12 @@ prediction/diagnostic artifacts are retained.
   observations used by each split.
 - `experiments/analyze_round2_results.py`: seed-aware, calendar-day-block, and
   full-precision graph diagnostics plus manuscript figures.
+- `experiments/generate_round2_expansion_assets.py`: validation-sensitivity
+  figure and complete horizon/validation tables used by the manuscript.
 - `results/`: machine-readable run
   records, seed-aware statistics, graph diagnostics, tables, and plots.
-- `manuscript/`: clean and highlighted LaTeX sources/PDFs plus the editor and
-  reviewer response sheet.
+- `manuscript/`: 25-page clean and highlighted LaTeX sources/PDFs, all linked
+  figure/table assets, and the editor and reviewer response sheet.
 
 The DCRNN-, STGCN-, Graph WaveNet-, AGCRN-, STID-, and Transformer-style models
 in `revision_models.py` are compact common-code controls, not the authors'

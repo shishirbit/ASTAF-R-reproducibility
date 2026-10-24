@@ -1,0 +1,25 @@
+\begin{tabular}{llccc}
+\toprule
+Dataset & Model & MAE (mph) & RMSE (mph) & MAPE (\%)\\
+\midrule
+METR-LA & Persistence & 4.286 & 8.214 & 11.167\\
+ & STID-style & 3.377$\pm$0.011 & 6.761$\pm$0.018 & 9.931$\pm$0.012\\
+ & DCRNN-style & 3.445$\pm$0.007 & 6.813$\pm$0.036 & 9.700$\pm$0.103\\
+ & STGCN-style & 5.262$\pm$0.033 & 8.797$\pm$0.060 & 15.203$\pm$0.083\\
+ & Transformer-style & 4.460$\pm$0.001 & 9.071$\pm$0.006 & 13.866$\pm$0.025\\
+ & Graph WaveNet-style & 3.487$\pm$0.121 & 6.773$\pm$0.280 & 9.878$\pm$0.396\\
+ & AGCRN-style & 3.542$\pm$0.192 & 7.022$\pm$0.441 & 10.063$\pm$0.605\\
+ & ASTAF backbone & 8.130$\pm$0.003 & 13.347$\pm$0.062 & 27.836$\pm$0.164\\
+ & ASTAF-R & \textbf{2.995$\pm$0.008} & \textbf{6.024$\pm$0.010} & \textbf{8.306$\pm$0.024}\\
+\midrule
+PeMS-BAY & Persistence & 2.170 & 5.123 & 4.671\\
+ & STID-style & 1.709$\pm$0.003 & 3.801$\pm$0.002 & 3.945$\pm$0.016\\
+ & DCRNN-style & 1.762$\pm$0.003 & 4.018$\pm$0.024 & 4.023$\pm$0.036\\
+ & STGCN-style & 3.264$\pm$0.004 & 6.068$\pm$0.013 & 7.617$\pm$0.043\\
+ & Transformer-style & 2.489$\pm$0.004 & 5.945$\pm$0.002 & 6.152$\pm$0.046\\
+ & Graph WaveNet-style & 1.823$\pm$0.066 & 3.990$\pm$0.204 & 4.196$\pm$0.175\\
+ & AGCRN-style & 1.781$\pm$0.091 & 4.045$\pm$0.304 & 4.097$\pm$0.192\\
+ & ASTAF backbone & 4.491$\pm$0.001 & 8.803$\pm$0.026 & 12.433$\pm$0.024\\
+ & ASTAF-R & \textbf{1.542$\pm$0.001} & \textbf{3.503$\pm$0.009} & \textbf{3.448$\pm$0.025}\\
+\bottomrule
+\end{tabular}

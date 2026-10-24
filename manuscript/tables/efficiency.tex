@@ -1,0 +1,25 @@
+\begin{tabular}{llrrrr}
+\toprule
+Dataset & Model & Parameters & FLOPs & Latency (ms/sample) & Peak GPU (MiB)\\
+\midrule
+METR-LA & ASTAF-R & 133,842 & 52,053,945 & 0.184 & 377.9\\
+ & STID-style & 38,028 & 2,358,209 & 0.017 & 28.8\\
+ & DCRNN-style & 38,412 & 454,333,536 & 0.233 & 48.9\\
+ & Graph WaveNet-style & 114,765 & 1,344,774,051 & 0.253 & 303.9\\
+ & AGCRN-style & 60,493 & 896,704,128 & 0.200 & 55.4\\
+ & Persistence & 0 & -- & 0.001 & 18.5\\
+ & Transformer-style & 100,876 & 341,480,448 & 0.430 & 412.9\\
+ & STGCN-style & 13,516 & 193,950,720 & 0.051 & 115.8\\
+ & ASTAF backbone & 91,984 & 752,433,408 & 0.193 & 377.0\\
+\midrule
+PeMS-BAY & ASTAF-R & 156,498 & 106,271,169 & 0.312 & 578.2\\
+ & STID-style & 45,580 & 3,702,465 & 0.028 & 33.8\\
+ & DCRNN-style & 38,412 & 952,629,600 & 0.385 & 66.1\\
+ & AGCRN-style & 75,597 & 2,100,009,600 & 0.217 & 109.1\\
+ & Graph WaveNet-style & 129,869 & 2,921,427,275 & 0.423 & 467.1\\
+ & Persistence & 0 & -- & 0.002 & 19.2\\
+ & Transformer-style & 100,876 & 536,140,800 & 0.686 & 637.0\\
+ & STGCN-style & 13,516 & 422,323,200 & 0.095 & 171.1\\
+ & ASTAF backbone & 107,088 & 1,839,136,000 & 0.358 & 576.5\\
+\bottomrule
+\end{tabular}

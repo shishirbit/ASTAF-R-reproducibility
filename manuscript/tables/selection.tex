@@ -1,0 +1,19 @@
+\begin{tabular}{llcc}
+\toprule
+Dataset & Candidate & Seeds & Validation MAE (mph)\\
+\midrule
+METR-LA & Fixed decomposition weights & 3 & 2.775$\pm$0.007\\
+ & Decomposition disabled & 3 & 2.773$\pm$0.011\\
+ & One graph block, top-$k=20$ & 3 & 2.780$\pm$0.008\\
+ & No residual output & 3 & 2.785$\pm$0.013\\
+ & Two graph blocks, top-$k=20$ & 3 & 2.771$\pm$0.003\\
+ & Two graph blocks, top-$k=40$ & 3 & 2.774$\pm$0.006\\
+\midrule
+PeMS-BAY & Fixed decomposition weights & 3 & 1.571$\pm$0.003\\
+ & Decomposition disabled & 3 & 1.577$\pm$0.009\\
+ & One graph block, top-$k=20$ & 3 & 1.576$\pm$0.007\\
+ & No residual output & 3 & 1.596$\pm$0.009\\
+ & Two graph blocks, top-$k=20$ & 3 & 1.574$\pm$0.009\\
+ & Two graph blocks, top-$k=40$ & 3 & 1.571$\pm$0.006\\
+\bottomrule
+\end{tabular}

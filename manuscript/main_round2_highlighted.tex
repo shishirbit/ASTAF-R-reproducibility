@@ -13,6 +13,7 @@
 \usepackage{longtable}
 \usepackage{xcolor}
 \usepackage{url}
+\usepackage[section]{placeins}
 \setlength{\emergencystretch}{2em}
 
 % Clean publication version. Revision commands are retained structurally so
@@ -434,10 +435,10 @@ STID~\cite{shao2022stgcn} provided a striking counterexample that a simple spati
 \begin{revision}
 ASTAF-R uses ablation as a hypothesis-generation tool: candidate mechanisms
 are isolated before being tested under the complete benchmark protocol. The
-revised evidence shows that reduced-sample ablations are not sufficient for
+the evidence shows that reduced-sample ablations are not sufficient for
 component selection, because the attention ranking changes after full-data
 training. The resulting contribution is therefore an auditable development
-workflow and evidence trail, not a claim that every submitted choice was
+workflow and evidence trail, not a claim that every initial choice was
 validated.
 \end{revision}
 
@@ -447,7 +448,7 @@ validated.
 
 \begin{revision}
 Table~\ref{tab:related_summary} positions ASTAF-R by architectural
-mechanism. It records presence rather than superiority. The revised ASTAF-R
+mechanism. It records presence rather than superiority. The evaluated ASTAF-R
 is deterministic and contains no uncertainty head.
 \end{revision}
 
@@ -704,7 +705,7 @@ paper.
 
 \paragraph{Original-scale metrics.}
 \begin{revision}
-Normalization is used for optimization, but all revised MAE, RMSE, and MAPE
+Normalization is used for optimization, but all reported MAE, RMSE, and MAPE
 values are calculated after inverse transformation into the original speed
 scale. Training-period statistics are reused without re-estimation for
 validation and test windows. This avoids mixing normalized pilot scores with
@@ -767,7 +768,7 @@ METR-LA, a popular benchmark for traffic speed predictions gathered from loop de
 
 \begin{table*}[htbp]
 \centering
-\caption{\rev{Dataset and chronological window-split summary for the revised
+\caption{\rev{Dataset and chronological raw-split/window summary for the
 full-data experiments.}}
 \label{tab:dataset_stats}
 {\color{revisionblue}
@@ -800,8 +801,8 @@ PeMS-BAY contains 52,105 five-minute speed observations from 325 sensors in
 the San Francisco Bay Area freeway network. It provides an independent
 network with more sensors and a longer observation period than METR-LA. The
 same 12-input/12-output, stride-one, chronological 70/10/20 protocol is used
-for both datasets. PeMS-BAY is not treated as a future extension in the
-revision; it is part of the confirmatory evaluation.
+for both datasets. It forms the independent second benchmark in the
+confirmatory evaluation.
 \end{revision}
 % ------------------------------------------------------------
 \subsection{Data Preprocessing}
@@ -810,11 +811,12 @@ revision; it is part of the confirmatory evaluation.
 
 
 \begin{revision}
-For each dataset, all possible 12-input/12-output windows are constructed
-with stride one and then partitioned chronologically into 70\% training,
-10\% validation, and 20\% test windows. No random split or reduced-window
-subsampling is used for the confirmatory results. The exact window counts are
-reported in Table~\ref{tab:dataset_stats}.
+For each dataset, the raw timeline is partitioned chronologically into 70\%
+training, 10\% validation, and 20\% test segments before window construction.
+Independent 12-input/12-output windows are then constructed with stride one
+inside each segment. Consequently, no input or target observation belongs to
+more than one split. No random split or reduced-window subsampling is used.
+The exact window counts are reported in Table~\ref{tab:dataset_stats}.
 
 Normalization statistics are fitted only on valid observations from the
 training period. Values encoded as zero are treated as unavailable. Such
@@ -822,8 +824,7 @@ inputs are replaced with the training mean, which becomes zero after
 normalization, and unavailable target positions are excluded from the loss
 and all metrics. The fitted statistics are applied unchanged to validation
 and test windows, and reported metrics are inverse-transformed to miles per
-hour. This pipeline corrects the whole-series scaling and reduced stride used
-in the submitted code.
+hour.
 
 The DCRNN-compatible METR-LA distance adjacency is taken from the public
 dataset release with MD5
@@ -841,7 +842,7 @@ its adaptive adjacency from node embeddings.
 \subsection{Exploratory dependency and temporal structure}
 
 \begin{revision}
-Figure~\ref{fig:heatmap} retains the submitted exploratory Pearson
+Figure~\ref{fig:heatmap} presents an exploratory Pearson
 correlation visualization for the first 50 METR-LA sensors. It shows that
 traffic-speed dependencies are heterogeneous and motivates testing an
 adaptive graph. However, the figure covers only part of the network and a
@@ -889,57 +890,207 @@ configuration was selected from validation results before locked testing.}
 \label{fig:architecture}
 \end{figure*}
 
-\subsection{Causal multi-scale temporal representation}
-Parallel one-dimensional convolutions with kernel widths 1, 3, and 6 operate
-only on the 12 observed steps. Their outputs are projected to a shared
-64-dimensional representation and fused. A separate linear history projection
-preserves ordered information from the complete input window. Learned node,
-time-of-day, and day-of-week embeddings are added before layer normalization.
-All temporal indices are computed from the input-window start; no target value
-or future calendar observation enters the encoder.
+\begin{revision}
+\subsection{Ordered multi-scale temporal representation}
+For each temporal scale $q\in\{1,3,6\}$, a one-dimensional convolution acts
+independently on every sensor history. Even-width padding is cropped to retain
+exactly 12 causal input positions. After GELU activation and temporal pooling,
+the scale-specific tensors
+$\mathbf{Z}^{(q)}\in\mathbb{R}^{B\times N\times d}$ are combined by a
+sample- and sensor-specific softmax gate:
+\begin{equation}
+\alpha_{bnq}=\frac{\exp(a_{bnq})}
+{\sum_{j\in\{1,3,6\}}\exp(a_{bnj})},\qquad
+\mathbf{Z}_{\mathrm{ms},bn}=\sum_{q\in\{1,3,6\}}
+\alpha_{bnq}\mathbf{Z}^{(q)}_{bn}.
+\label{eq:scale_fusion}
+\end{equation}
+Temporal pooling alone cannot distinguish histories with equal pooled
+summaries. The complete normalized history is therefore projected in its
+original order:
+\begin{equation}
+\mathbf{Z}_{\mathrm{hist},bn}=\operatorname{GELU}\!\left(
+\mathbf{W}_{h}\widetilde{\mathbf{x}}_{bn}+\mathbf{b}_{h}\right),
+\label{eq:history_projection}
+\end{equation}
+where $\widetilde{\mathbf{x}}_{bn}\in\mathbb{R}^{12}$ contains only observed
+input positions. The temporal state is
+$\mathbf{Z}_{\mathrm{ms}}+\mathbf{Z}_{\mathrm{hist}}$.
+
+\subsection{Sensor and calendar context}
+Every sensor has a learned embedding $\mathbf{e}_{n}\in\mathbb{R}^{d}$.
+The forecast origin determines a time-of-day index in
+$\{0,\ldots,287\}$ and a day-of-week index in $\{0,\ldots,6\}$. Their
+embeddings provide information available at forecast time:
+\begin{equation}
+\mathbf{Z}_{\mathrm{ctx}}=\operatorname{LN}\!\left(
+\mathbf{Z}_{\mathrm{ms}}+\mathbf{Z}_{\mathrm{hist}}+
+\mathbf{E}_{\mathrm{node}}+\mathbf{E}_{\mathrm{tod}}+
+\mathbf{E}_{\mathrm{dow}}\right).
+\label{eq:context}
+\end{equation}
+No target speed or calendar value derived from the target window enters the
+encoder.
 
 \subsection{Residual decomposition and learned fusion}
-The encoded signal is separated into trend, seasonal, and residual branches.
-If their representations are $\mathbf{T}$, $\mathbf{S}$, and $\mathbf{R}$,
-the fused representation is
+The input history is mapped to trend, recurrent-seasonal, and residual
+representations $\mathbf{T}$, $\mathbf{S}$, and $\mathbf{R}$. The trend
+branch uses a width-7 reflected convolution; the recurrent branch averages
+the hidden states of a single GRU; and the residual summarizes what remains
+after the trend and recurrent summaries. Three trainable logits form
+non-negative fusion weights whose total contribution is fixed at 0.70:
 \begin{equation}
-\mathbf{H}_{d}=\mathbf{H}_{0}+w_T\mathbf{T}+w_S\mathbf{S}+w_R\mathbf{R},
+\mathbf{w}=0.70\,\operatorname{softmax}(\boldsymbol{\ell}),\qquad
+\mathbf{Z}_{0}=\operatorname{LN}\!\left(
+\mathbf{Z}_{\mathrm{ctx}}+w_T\mathbf{T}+w_S\mathbf{S}+w_R\mathbf{R}
+\right).
+\label{eq:decomposition_fusion}
 \end{equation}
-where the three non-negative weights are obtained by a softmax and scaled to
-the initial total weight. Fixed-weight and decomposition-disabled alternatives
-are evaluated on the validation split rather than assumed inferior.
+The logits are initialized from $(0.35,0.25,0.10)$ and optimized on the
+training split. This construction supplies complementary feature summaries;
+it does not assert a uniquely identifiable physical decomposition. Fixed,
+equal, trend-heavy, and decomposition-disabled controls are evaluated on the
+validation split.
 
-\subsection{Sparse graph propagation}
-Two node-embedding matrices $\mathbf{E}_s,\mathbf{E}_t\in\mathbb{R}^{N\times64}$
-define directed scores
+\subsection{Directed sparse graph construction}
+Source and target node embeddings
+$\mathbf{E}_{s},\mathbf{E}_{t}\in\mathbb{R}^{N\times d}$ define directed
+compatibility scores
 \begin{equation}
-\mathbf{L}=\operatorname{ReLU}\!\left(\mathbf{E}_s\mathbf{E}_t^\top/\sqrt{64}\right)/\tau,
+s_{ij}=\frac{\operatorname{ReLU}\!\left(
+\mathbf{e}_{s,i}^{\top}\mathbf{e}_{t,j}/\sqrt{d}\right)}{\tau},
 \qquad \tau=0.5.
+\label{eq:graph_scores}
 \end{equation}
-Only the largest $k=40$ entries in each row are retained, and a row-wise
-softmax produces $\mathbf{A}$. Two residual graph blocks apply
+Let $\mathcal{K}_{40}(i)$ denote the indices of the 40 largest scores in row
+$i$. Row-wise normalization gives
 \begin{equation}
-\mathbf{H}^{(\ell+1)}=\operatorname{LN}\!\left(\mathbf{H}^{(\ell)}+
-\operatorname{Dropout}\left(\mathbf{W}_o\,\operatorname{GELU}
-(\mathbf{A}\mathbf{H}^{(\ell)}\mathbf{W}_m)\right)\right).
+A_{ij}=\frac{\exp(s_{ij})\mathbb{I}[j\in\mathcal{K}_{40}(i)]}
+{\sum_{m\in\mathcal{K}_{40}(i)}\exp(s_{im})}.
+\label{eq:sparse_graph}
 \end{equation}
-Top-$k$, graph depth, reference, shuffled, uniform, identity, and graph-disabled
-controls are included in the validation diagnostics.
+The formulation permits an asymmetric adjacency and contains no manually
+selected identity-blending coefficient. The checkpoint diagnostic in
+Section~\ref{subsec:graph_robustness} shows that the learned embeddings
+collapsed to zero in these runs; Eq.~\eqref{eq:sparse_graph} consequently
+reduced to uniform sparse averaging on a deterministic support. The equation
+describes the implemented mechanism, while the diagnostic limits its
+empirical interpretation.
 
-\subsection{Residual attention and deterministic decoder}
-Spatial multi-head attention is applied as a residual update rather than a
-mandatory replacement of the graph representation. A feed-forward residual
-block and layer normalization follow the attention operation. The decoder maps
-each node representation to 12 horizon-specific corrections. These corrections
-are added to the last observed speed, providing a strong local reference while
-allowing non-persistent forecasts.
+\subsection{Residual graph propagation}
+Two graph blocks transform and aggregate node states while retaining a direct
+node-local path:
+\begin{align}
+\mathbf{P}^{(\ell)}&=\mathbf{A}\,
+g_{\ell}\!\left(\mathbf{Z}^{(\ell)}\right),\\
+\mathbf{Z}^{(\ell+1)}&=\operatorname{LN}\!\left(
+\mathbf{Z}^{(\ell)}+
+o_{\ell}\!\left(\operatorname{Dropout}
+(\operatorname{GELU}(\mathbf{P}^{(\ell)}))\right)\right),
+\qquad \ell\in\{0,1\}.
+\label{eq:graph_blocks}
+\end{align}
+The residual connection prevents spatial aggregation from erasing the
+temporally encoded state. Validation controls vary graph depth, neighborhood
+size, and graph source rather than presuming that one graph formulation is
+universally preferable.
 
-\subsection{Loss and optimization}
-Training minimizes masked MAE over nonzero targets. Adam uses learning rate
-$10^{-3}$, weight decay $10^{-5}$, gradient-norm clipping at 5, mixed precision,
-and validation checkpointing. The best validation checkpoint is restored before
-the test set is evaluated. The test set is never used for model selection,
-epoch selection, or hyperparameter adjustment.
+\subsection{Residual spatial attention}
+Four-head self-attention operates over the $N$ sensor tokens after graph
+propagation. Both attention and its feed-forward network are residual
+corrections:
+\begin{align}
+\mathbf{Z}_{a}&=\operatorname{LN}\!\left(
+\mathbf{Z}^{(2)}+\operatorname{MHA}(\mathbf{Z}^{(2)})\right),\\
+\mathbf{Z}_{f}&=\operatorname{LN}\!\left(
+\mathbf{Z}_{a}+\operatorname{FFN}(\mathbf{Z}_{a})\right).
+\label{eq:residual_attention}
+\end{align}
+This residual design is distinct from mandatory replacement by an attention
+output. The two variants are directly compared during validation.
+
+\subsection{Deterministic multi-horizon decoder}
+A two-layer decoder produces all horizons jointly as corrections to the last
+observed normalized speed:
+\begin{equation}
+\widehat{\mathbf{Y}}=
+\mathbf{X}_{:,12,:,:}+\operatorname{reshape}
+\!\left(\operatorname{MLP}(\mathbf{Z}_{f})\right),
+\qquad
+\widehat{\mathbf{Y}}\in\mathbb{R}^{B\times12\times N\times1}.
+\label{eq:residual_decoder}
+\end{equation}
+Direct decoding avoids autoregressive rollout. The evaluated model is a
+deterministic point forecaster and has no quantile or probabilistic output
+head.
+
+\subsection{Forward procedure}
+Algorithm~\ref{alg:astafr_forward} gives the complete data path. All steps
+operate on the input window or metadata available at the forecast origin.
+\begin{algorithm}[H]
+\caption{ASTAF-R deterministic forward pass}
+\label{alg:astafr_forward}
+\begin{algorithmic}[1]
+\Require Normalized history $\mathbf{X}$; sensor and forecast-origin indices
+\State Encode kernel widths 1, 3, and 6 and project the ordered history
+\State Add sensor, time-of-day, and day-of-week embeddings
+\State Form trend, recurrent-seasonal, and residual summaries
+\State Fuse the summaries using learned non-negative weights
+\State Construct directed row-normalized top-40 adjacency $\mathbf{A}$
+\State Apply two residual graph propagation blocks
+\State Apply residual four-head spatial attention and residual FFN
+\State Decode 12 corrections and add the last observed speed
+\State \Return $\widehat{\mathbf{Y}}$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Dimensional flow and parameterization}
+Table~\ref{tab:dimension_flow} records the tensor passed between stages. The
+temporal encoder works within each sensor history; graph propagation and
+attention act on sensor tokens only after temporal compression.
+\begin{table*}[t]
+\centering
+\caption{Dimensional flow for batch size $B$, $N$ sensors, hidden dimension
+$d=64$, input length $T=12$, and output horizon $H=12$.}
+\label{tab:dimension_flow}
+\small
+\begin{tabular}{lll}
+\toprule
+Stage & Output shape & Main trainable quantities\\
+\midrule
+Input window & $B\times T\times N\times1$ & None\\
+Scale encoders & $B\times N\times d$ per scale & Temporal convolutions and scale gate\\
+Ordered history & $B\times N\times d$ & $T\times d$ projection\\
+Context & $B\times N\times d$ & Node and calendar embeddings\\
+Decomposition & Three $B\times N\times d$ tensors & Trend convolution, GRU, fusion logits\\
+Sparse adjacency & $N\times N$ & Source and target node embeddings\\
+Graph and attention & $B\times N\times d$ & Two graph blocks, four-head attention, FFN\\
+Decoder & $B\times H\times N\times1$ & Direct multi-horizon MLP\\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{Training objective and computational complexity}
+For validity mask $M_{bhn}=\mathbb{I}[Y_{bhn}\neq0]$, training minimizes
+\begin{equation}
+\mathcal{L}_{\mathrm{MAE}}=
+\frac{\sum_{b,h,n}M_{bhn}\left|Y_{bhn}-\widehat{Y}_{bhn}\right|}
+{\sum_{b,h,n}M_{bhn}}.
+\label{eq:training_loss}
+\end{equation}
+Adam uses learning rate $10^{-3}$, weight decay $10^{-5}$, gradient-norm
+clipping at 5, mixed precision, and validation checkpointing. The best
+validation checkpoint is restored before the test split is evaluated.
+
+With three temporal scales and two graph blocks, temporal encoding is
+approximately $\mathcal{O}(BNTd+BNd\sum_q q)$. Constructing the dense score
+matrix costs $\mathcal{O}(N^2d)$. Although only 40 entries per row remain
+after selection, the reported implementation retains a dense $N\times N$
+tensor; graph propagation and spatial attention therefore have a dominant
+$\mathcal{O}(BN^2d)$ term. A sparse-kernel implementation could reduce message
+aggregation toward $\mathcal{O}(BNkd)$, but that optimization is not included
+in the reported latency or memory measurements.
+\end{revision}
 
 \section{Experimental Setup}
 \label{sec:setup}
@@ -960,6 +1111,35 @@ mask so unavailable values do not contribute to loss or metrics. The forecast
 horizons are 15, 30, and 60 minutes at steps 3, 6, and 12, in addition to
 aggregate 12-step MAE, RMSE, and MAPE.
 
+\begin{revision}
+Algorithm~\ref{alg:leakage_free_windows} states the boundary procedure
+explicitly. A candidate start index is accepted only when its full 24-step
+input--target span is contained in one raw segment. This excludes all
+boundary-crossing starts that would otherwise share observations between two
+adjacent splits.
+\begin{algorithm}[H]
+\caption{Leakage-free chronological splitting and window construction}
+\label{alg:leakage_free_windows}
+\begin{algorithmic}[1]
+\Require Raw series $\mathbf{V}_{0:L-1}$; input length $T=12$; horizon $H=12$
+\State Set raw boundaries $b_0=0$, $b_1=\lfloor0.70L\rfloor$,
+$b_2=\lfloor0.80L\rfloor$, $b_3=L$
+\For{$r\in\{0,1,2\}$}
+  \State Initialize split $\mathcal{D}_r\gets\varnothing$
+  \For{$s=b_r$ \textbf{to} $b_{r+1}-T-H$}
+    \State $\mathbf{X}\gets\mathbf{V}_{s:s+T-1}$
+    \State $\mathbf{Y}\gets\mathbf{V}_{s+T:s+T+H-1}$
+    \State Append $(\mathbf{X},\mathbf{Y},s)$ to $\mathcal{D}_r$
+  \EndFor
+\EndFor
+\State Fit normalization statistics on valid observations in
+$\mathbf{V}_{b_0:b_1-1}$ only
+\State Apply them unchanged to $\mathcal{D}_0,\mathcal{D}_1,\mathcal{D}_2$
+\State \Return training, validation, and test windows with raw indices
+\end{algorithmic}
+\end{algorithm}
+\end{revision}
+
 \subsection{Selection and locked evaluation}
 Nine principal candidates were trained with seeds 11, 22, and 33 on both
 validation splits. Twenty broader graph, scale, decomposition, context, and
@@ -971,12 +1151,43 @@ persistence is deterministic and appears once per dataset.
 
 \subsection{Comparison models and reproducibility scope}
 The controlled comparison contains compact common-code versions of STID,
-DCRNN, STGCN, a Transformer encoder, Graph WaveNet, AGCRN, and the submitted
+DCRNN, STGCN, a Transformer encoder, Graph WaveNet, AGCRN, and the initial
 ASTAF backbone. They share preprocessing, batching, loss, checkpoint selection,
 and evaluation code. They are not official checkpoints or exhaustive
 method-specific tuning studies, so differences are interpreted only within
 this protocol. Runs used Python 3.13.9, PyTorch 2.11.0 with CUDA 12.8, NumPy
 2.5.1, and an NVIDIA GeForce RTX 5060 Laptop GPU with 7.96 GiB memory.
+
+\begin{revision}
+Table~\ref{tab:baseline_settings} makes the common-code scope auditable.
+Every learned model uses Adam, batch size 64, learning rate $10^{-3}$, weight
+decay $10^{-5}$, a 60-epoch cap, patience 10, and seeds 11, 22, and 33.
+Model-specific inductive biases are retained, whereas preprocessing, target
+masking, checkpoint selection, and evaluation remain identical.
+\begin{table*}[t]
+\centering
+\caption{Principal settings of the compact common-code comparison models.
+The ``style'' suffix distinguishes these controls from official repositories
+and independently tuned published systems.}
+\label{tab:baseline_settings}
+\small
+\begin{tabular}{lll}
+\toprule
+Model & Principal configuration & Spatial input\\
+\midrule
+Persistence & Last valid value repeated over 12 horizons & None\\
+STID-style & 64-d history, node, and calendar embeddings; MLP decoder & None\\
+DCRNN-style & 64-d diffusion-GRU encoder; direct 12-step output & Reference adjacency\\
+STGCN-style & Two 64-channel temporal/graph convolution stages & Reference adjacency\\
+Transformer-style & 64-d embedding; two encoder layers; four heads & None\\
+Graph WaveNet-style & 64 channels; dilations 1, 2, 4; graph convolution & Learned + reference\\
+AGCRN-style & 64-d adaptive graph recurrent encoder & Learned adjacency\\
+ASTAF backbone & Multi-scale/decomposition/graph with mandatory attention & Learned adjacency\\
+ASTAF-R & Selected architecture in Section~\ref{sec:method} & Learned top-40 graph\\
+\bottomrule
+\end{tabular}
+\end{table*}
+\end{revision}
 
 \subsection{Statistical and computational analysis}
 We report sample mean and sample standard deviation across seeds. Seed-paired
@@ -1007,6 +1218,24 @@ deviations are across seeds 11, 22, and 33.}
 \input{tables/selection.tex}
 \end{table*}
 
+\begin{revision}
+Figure~\ref{fig:validation_sensitivity} broadens the validation view beyond
+the six closest candidates in Table~\ref{tab:selection}. Dark bars denote
+three-seed principal candidates and light bars denote seed-11 diagnostic
+controls. Several alternatives cluster closely, especially on PeMS-BAY;
+consequently, the plot supports a coordinated configuration choice rather
+than a claim that every selected component is independently dominant.
+\begin{figure*}[t]
+\centering
+\includegraphics[width=.96\textwidth]{figures/validation_sensitivity.pdf}
+\caption{Validation-only architectural sensitivity, expressed as the
+percentage by which each candidate's validation MAE exceeds the best displayed
+candidate within that dataset. The annotation gives the number of seeds; no
+locked-test metric is used in this figure.}
+\label{fig:validation_sensitivity}
+\end{figure*}
+\end{revision}
+
 \subsection{Locked full-split comparison}
 Table~\ref{tab:main_results} reports the locked test results. ASTAF-R has the
 lowest mean MAE, RMSE, and MAPE among the compact common-code models on both
@@ -1033,6 +1262,54 @@ persistence. Lower is better.}
 show sample standard deviation across seeds.}
 \label{fig:main_mae}
 \end{figure*}
+
+\begin{revision}
+MAE alone can obscure whether a ranking depends on the error definition.
+Figure~\ref{fig:normalized_metrics} normalizes MAE, RMSE, and MAPE by the best
+model value for each dataset and metric. ASTAF-R is the unit reference on all
+six dataset--metric combinations; the relative gaps are larger for the
+under-performing controls and remain visible for the closest comparison.
+Figure~\ref{fig:uniform_ranks} summarizes the same locked results as ranks
+across the three metrics. These views do not add independent observations,
+but they make the consistency of the multi-metric comparison explicit.
+\begin{figure*}[t]
+\centering
+\includegraphics[width=.49\textwidth]{figures/metr_la_normalized_metrics.pdf}
+\includegraphics[width=.49\textwidth]{figures/pems_bay_normalized_metrics.pdf}
+\caption{Locked-test MAE, RMSE, and MAPE normalized by the lowest mean value
+for each metric and dataset. A value of 1 denotes the best mean result; error
+bars propagate the across-seed sample standard deviation through the same
+normalization.}
+\label{fig:normalized_metrics}
+\end{figure*}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=.49\textwidth]{figures/metr_la_uniform_ranks.pdf}
+\includegraphics[width=.49\textwidth]{figures/pems_bay_uniform_ranks.pdf}
+\caption{Metric-wise ranks of the compact common-code models on the locked
+test splits. Lower ranks are better; ties, if present, receive their average
+rank.}
+\label{fig:uniform_ranks}
+\end{figure*}
+
+\subsection{Optimization trajectories}
+Figure~\ref{fig:training_curves} displays the saved training and validation
+histories for the three ASTAF-R seeds. The best checkpoint is selected at the
+minimum validation MAE, not at the final epoch. Similar trajectories across
+seeds are consistent with the small locked-test standard deviations, while
+the train--validation gap motivates retaining validation checkpointing and
+early stopping.
+\begin{figure*}[t]
+\centering
+\includegraphics[width=.49\textwidth]{figures/metr_la_training_curves.pdf}
+\includegraphics[width=.49\textwidth]{figures/pems_bay_training_curves.pdf}
+\caption{ASTAF-R training and validation MAE histories for seeds 11, 22, and
+33. Curves are taken from the stored run histories, and each locked test run
+uses the corresponding minimum-validation checkpoint.}
+\label{fig:training_curves}
+\end{figure*}
+\end{revision}
 
 \subsection{Seed and calendar-day variability}
 ASTAF-R is lower than every comparison for each matched seed. Exact seed
@@ -1072,13 +1349,15 @@ top-40 weights.}
 \resizebox{\columnwidth}{!}{\input{tables/graph_stability.tex}}
 \end{table}
 
-\begin{figure}[t]
+\begin{figure*}[t]
 \centering
-\includegraphics[width=\columnwidth]{figures/metr_la_learned_adjacency.pdf}
-\caption{METR-LA sparse graph matrix from seed 11. The uniform nonzero weights
-and deterministic support must not be interpreted as recovered topology.}
+\includegraphics[width=.49\textwidth]{figures/metr_la_learned_adjacency.pdf}
+\includegraphics[width=.49\textwidth]{figures/pems_bay_learned_adjacency.pdf}
+\caption{Sparse graph matrices from seed 11 for METR-LA (left) and PeMS-BAY
+(right). Uniform nonzero weights and deterministic support must not be
+interpreted as recovered road-network topology.}
 \label{fig:graph}
-\end{figure}
+\end{figure*}
 
 \subsection{Forecast horizons and engineering trade-offs}
 Error increases with horizon on both datasets (Figure~\ref{fig:horizon}),
@@ -1106,6 +1385,24 @@ are not hardware-independent model properties.}
 \resizebox{\textwidth}{!}{\input{tables/efficiency.tex}}
 \end{table*}
 
+\begin{revision}
+Figure~\ref{fig:efficiency} visualizes the same deployment trade-off. ASTAF-R
+uses fewer profiler operations than several graph-recurrent controls but more
+parameters and substantially more memory and latency than STID- and
+STGCN-style controls. Its error advantage therefore does not imply universal
+deployment preference.
+\begin{figure*}[t]
+\centering
+\includegraphics[width=.49\textwidth]{figures/metr_la_efficiency.pdf}
+\includegraphics[width=.49\textwidth]{figures/pems_bay_efficiency.pdf}
+\caption{Accuracy--efficiency profiles measured on the stated hardware.
+Points compare locked-test MAE with synchronized inference latency, peak
+allocated GPU memory, parameter count, and profiler operations; these
+engineering measurements are environment-specific.}
+\label{fig:efficiency}
+\end{figure*}
+\end{revision}
+
 \subsection{Scope of the evidence}
 The experiments cover two California freeway-speed datasets with regular
 five-minute sampling and no exogenous weather, event, or incident variables.
@@ -1114,6 +1411,7 @@ occupancy targets, distribution shift, or heterogeneous multi-frequency
 covariates. The deterministic evaluation also does not establish calibrated
 uncertainty forecasting.
 
+\FloatBarrier
 \section{Conclusion and Future Work}
 \label{sec:conclusion}
 ASTAF-R was evaluated using validation-only architecture selection and a locked,
@@ -1145,14 +1443,143 @@ run-level JSON and NumPy artifacts; generated analysis tables; and commands for
 reproducing the study. Exact raw-split boundaries and the absence of
 cross-split raw-observation overlap are recorded in every locked-test run.
 
+\begin{revision}
+\subsection{Horizon-wise numerical results}
+Figure~\ref{fig:horizon} gives the complete trend; Table~\ref{tab:full_horizons}
+provides the corresponding values for ASTAF-R and the closest aggregate-MAE
+comparison. The difference column is ASTAF-R minus STID-style, so negative
+values favor ASTAF-R. The difference remains negative at every horizon on
+both datasets and generally widens as the forecast range increases. This
+table is a numerical expansion of the locked analysis, not a separate tuning
+experiment.
+\begin{table*}[t]
+\centering
+\caption{Locked-test horizon-wise MAE in mph for ASTAF-R and the closest
+aggregate-MAE compact control. Values are mean$\pm$sample standard deviation
+across seeds 11, 22, and 33.}
+\label{tab:full_horizons}
+\small
+\input{tables/full_horizons.tex}
+\end{table*}
+
+Tables~\ref{tab:all_horizons_metr} and~\ref{tab:all_horizons_pems}
+extend the numerical record to every compact comparison model. They report
+mean MAE to keep the matrices readable; the corresponding across-seed
+dispersion appears as shading in Figure~\ref{fig:horizon} and remains
+available in the machine-readable horizon table.
+
+\begin{table*}[p]
+\centering
+\caption{METR-LA locked-test mean MAE at all 12 horizons for every compact
+common-code model. GWN denotes Graph WaveNet-style, Trans. denotes
+Transformer-style, and Persist. denotes persistence.}
+\label{tab:all_horizons_metr}
+\scriptsize
+\resizebox{\textwidth}{!}{\input{tables/all_models_horizon_metr.tex}}
+\end{table*}
+
+\begin{table*}[p]
+\centering
+\caption{PeMS-BAY locked-test mean MAE at all 12 horizons for every compact
+common-code model. Abbreviations follow Table~\ref{tab:all_horizons_metr}.}
+\label{tab:all_horizons_pems}
+\scriptsize
+\resizebox{\textwidth}{!}{\input{tables/all_models_horizon_pems.tex}}
+\end{table*}
+
+\subsection{Complete validation candidate inventory}
+Tables~\ref{tab:validation_all_metr} and~\ref{tab:validation_all_pems}
+report every stored candidate summary used in the component analysis. The
+identifier is preserved verbatim so that each row can be matched directly to
+its configuration and run artifacts. Principal decisions were repeated over
+three seeds; broader diagnostic controls used seed 11 and are marked with a
+seed count of one. Single-seed rows are not assigned an artificial standard
+deviation and are not treated as equally strong evidence.
+
+\begin{table*}[p]
+\centering
+\caption{Complete METR-LA validation-candidate inventory. Rows are ordered by
+validation MAE; candidate identifiers match the public configuration and
+artifact names.}
+\label{tab:validation_all_metr}
+\scriptsize
+\input{tables/validation_all_metr.tex}
+\end{table*}
+
+\begin{table*}[p]
+\centering
+\caption{Complete PeMS-BAY validation-candidate inventory. Rows are ordered by
+validation MAE; candidate identifiers match the public configuration and
+artifact names.}
+\label{tab:validation_all_pems}
+\scriptsize
+\input{tables/validation_all_pems.tex}
+\end{table*}
+
+\subsection{Seed-aware and calendar-block inference}
+Let $e^{(m)}_{s,w}$ be per-window MAE for model $m$, seed $s$, and test window
+$w$. Because stride-one windows overlap strongly, window-level errors are not
+treated as independent replicates. Windows whose forecast origins fall on the
+same calendar day $g$ are first aggregated:
+\begin{equation}
+d_{s,g}^{(m)}=\frac{1}{|\mathcal{W}_g|}
+\sum_{w\in\mathcal{W}_g}
+\left(e^{(\mathrm{ASTAF\mbox{-}R})}_{s,w}-e^{(m)}_{s,w}\right).
+\label{eq:day_block_difference}
+\end{equation}
+Each bootstrap repetition resamples calendar days with replacement within
+each seed and then averages the three seed-specific means:
+\begin{equation}
+\Delta^{*(r)}_m=\frac{1}{3}\sum_{s\in\{11,22,33\}}
+\frac{1}{G}\sum_{j=1}^{G}d^{(m)}_{s,g^{*(r)}_j}.
+\label{eq:block_bootstrap}
+\end{equation}
+The 2.5th and 97.5th empirical percentiles of 10,000 deterministic
+repetitions form the intervals in Table~\ref{tab:statistics}. The separate
+seed-paired exact sign-flip test enumerates all $2^3$ sign assignments. Its
+smallest attainable two-sided value is 0.25, which is why effect sizes,
+between-seed dispersion, and block-bootstrap intervals carry more information
+than the seed-level $p$-value alone.
+
+\subsection{Artifact-to-claim traceability}
+Table~\ref{tab:artifact_traceability} links major claims to machine-readable
+outputs. Run files retain dataset identifiers, raw boundaries, window counts,
+seed, environment, epoch history, best checkpoint epoch, test metrics,
+parameter count, profiler operations, latency, and peak memory. NumPy archives
+store aligned start indices, per-window errors, adjacency matrices, and
+decomposition weights used by the downstream analyses.
+\begin{table*}[t]
+\centering
+\caption{Traceability from manuscript evidence to public archive artifacts.}
+\label{tab:artifact_traceability}
+\small
+\begin{tabular}{lll}
+\toprule
+Evidence & Primary machine-readable artifact & Verification purpose\\
+\midrule
+Raw split isolation & locked run JSON files & Boundaries, counts, zero overlap\\
+Validation selection & \texttt{validation\_candidates.csv} & Candidate means, seeds, criterion\\
+Locked aggregate metrics & \texttt{main\_results.csv} & MAE, RMSE, MAPE and dispersion\\
+Horizon curves & \texttt{horizon\_results.csv} & Steps 1--12 for every model\\
+Seed comparisons & \texttt{seed\_level\_tests.csv} & Paired effects and sign-flip tests\\
+Calendar-block intervals & \texttt{day\_block\_bootstrap.csv} & Day counts and bootstrap intervals\\
+Graph diagnosis & \texttt{graph\_results.csv} and NPZ files & Norms, supports, weights, correlations\\
+Efficiency profile & run JSON profiler fields & Parameters, operations, latency, memory\\
+\bottomrule
+\end{tabular}
+\end{table*}
+\end{revision}
+
+\FloatBarrier
+
 \section*{Author contributions statement}
 
-S.S. Chauhan conceived the study, contributed to the research design, and led the initial manuscript preparation.
-P. Nema contributed to data preprocessing, model implementation, and experimental execution.
-G. Chhabra assisted in methodological refinement, validation, and interpretation of the experimental results.
-A. Pandey supervised the study, contributed to result analysis, visualization, critical manuscript revision, and coordinated the final submission.
-S. Syal contributed to literature analysis, manuscript editing, and interpretation of the findings.
-All authors reviewed the manuscript, provided intellectual input, approved the final version, and agreed to be accountable for the content of the work.
+S.S. Chauhan conceived the study, contributed to the research design, and led the initial manuscript preparation. 
+P. Nema contributed to data preprocessing, model implementation, and experimental execution. 
+G. Chhabra assisted in methodological refinement, validation, and interpretation of the experimental results. 
+A. Pandey supervised the study, contributed to result analysis, visualization, critical manuscript editing, and coordinated the study. 
+S. Syal contributed to literature analysis, manuscript editing, and interpretation of the findings. 
+All authors reviewed the manuscript, provided intellectual input, approved the final version, and agreed to be accountable for the content of the work. 
 Correspondence should be addressed to A. Pandey.
 
 \section*{Competing interests}
@@ -1169,12 +1596,15 @@ at \url{https://doi.org/10.5281/zenodo.5724362} and
 \url{https://doi.org/10.5281/zenodo.5146275}.
 
 \section*{Code Availability}
+\begin{revision}
 The complete source code, preprocessing, model and compact baseline
 implementations, configuration values, dependencies, seeds, training and
 evaluation commands, and analysis scripts are publicly available at
-\url{https://github.com/shishirbit/ASTAF-R-reproducibility}. The versioned
-reproducibility package used for this article is archived in Zenodo at
-\url{https://doi.org/10.5281/zenodo.23611484}.
+\url{https://github.com/shishirbit/ASTAF-R-reproducibility}. The matching
+versioned reproducibility package has the reserved Zenodo DOI
+\url{https://doi.org/10.5281/zenodo.23611484}; the deposit will be published
+before journal resubmission so that the DOI resolves publicly.
+\end{revision}
 
 \bibliography{reference}
 
