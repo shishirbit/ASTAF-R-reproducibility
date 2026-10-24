@@ -16,32 +16,11 @@
 \usepackage[section]{placeins}
 \setlength{\emergencystretch}{2em}
 
-% Clean publication version. Revision commands are retained structurally so
-% that this source remains text-identical to the highlighted manuscript, but
-% all content is rendered in normal black.
-\definecolor{revisionblue}{RGB}{0,0,0}
-\newcommand{\rev}[1]{{\color{revisionblue}#1}}
-\newenvironment{revision}{\color{revisionblue}}{}
-
-% Numerical values are generated directly from saved revision experiment
-% artifacts.
-\IfFileExists{revision_results.tex}{\input{revision_results.tex}}{
-  \newcommand{\METRMAE}{TBD}
-  \newcommand{\METRMAESD}{TBD}
-  \newcommand{\PEMSMAE}{TBD}
-  \newcommand{\PEMSMAESD}{TBD}
-  \newcommand{\METRAttentionMAE}{TBD}
-  \newcommand{\METRAttentionMAESD}{TBD}
-  \newcommand{\PEMSAttentionMAE}{TBD}
-  \newcommand{\PEMSAttentionMAESD}{TBD}
-  \newcommand{\AttentionDelta}{TBD}
-  \newcommand{\PEMSAttentionDelta}{TBD}
-  \newcommand{\GammaBest}{TBD}
-  \newcommand{\GraphStability}{TBD}
-  \newcommand{\PEMSGraphStability}{TBD}
-  \newcommand{\METRTopTenStability}{TBD}
-  \newcommand{\PEMSTopTenStability}{TBD}
-}
+% Change markers render in black in this publication copy and in blue in the
+% companion marked copy.
+\definecolor{changeblue}{RGB}{0,0,0}
+\newcommand{\chg}[1]{{\color{changeblue}#1}}
+\newenvironment{changedcontent}{\color{changeblue}}{}
 \title{ASTAF-R: An Ablation-Guided Spatio-Temporal Framework for Multi-Horizon Traffic Prediction}
 
 \author[1,+]{Shishir Singh Chauhan}
@@ -64,7 +43,7 @@
 \keywords{Traffic forecasting, Intelligent transportation systems, Spatio-temporal learning, Graph neural networks, Adaptive graph learning, Ablation-guided refinement, Multi-horizon prediction, Time series decomposition}
 
 \begin{abstract}
-{\color{revisionblue}
+{\color{changeblue}
 Reliable traffic forecasting comparisons require architectural decisions to be
 separated from final test evaluation and all models to share the same data
 pipeline. ASTAF-R is an ablation-guided deterministic framework that combines
@@ -86,7 +65,9 @@ are reported explicitly. A post-training graph audit found identical uniform
 top-40 supports across seeds because the graph-source and graph-target
 parameters converged to zero; consequently, the experiments support sparse
 graph propagation but not a claim of recovered or seed-robust adaptive
-topology. The evaluation is limited to two regularly sampled California
+topology. Top-$k$ sparsity describes graph connectivity only: the implementation
+retains dense $N\times N$ graph and attention tensors and therefore makes no
+sparse-kernel computational claim. The evaluation is limited to two regularly sampled California
 freeway-speed datasets and compact local baseline implementations. The results
 therefore establish reproducible performance under this controlled protocol,
 not universal or official state-of-the-art superiority.
@@ -307,7 +288,7 @@ of incorporating external contextual information such as land use,
 point-of-interest data, and open government records alongside sensor
 observations.
 
-\begin{revision}
+\begin{changedcontent}
 ASTAF-R evaluates sparse graph propagation within this line of work. Trainable
 source and target embeddings produce directed scores followed by top-$k$
 sparsification and row normalization. Reference, shuffled, uniform, identity,
@@ -315,7 +296,7 @@ and graph-disabled controls are evaluated explicitly. As reported in
 Section~\ref{sec:results}, the selected checkpoints collapse to a uniform
 top-40 support; the study therefore does not claim recovery of adaptive road
 topology.
-\end{revision}
+\end{changedcontent}
 
 % ------------------------------------------------------------
 \subsection{Attention Mechanisms in Spatio-Temporal Models}
@@ -349,13 +330,13 @@ examined whether mandatory attention fusion is beneficial when
 expressive graph propagation and temporal convolution are simultaneously
 active.
 
-\begin{revision}
+\begin{changedcontent}
 Attention is treated as a validation-tested component rather than a required
 source of improvement. Disabled, residual, and mandatory configurations are
 compared under the same preprocessing and optimization pipeline. The selected
 configuration uses residual spatial attention, while the conclusions remain
 specific to the two datasets and declared training budget.
-\end{revision}
+\end{changedcontent}
 
 % ------------------------------------------------------------
 \subsection{Signal Decomposition in Temporal Forecasting}
@@ -378,13 +359,13 @@ decomposition consistently improves long-horizon forecasting accuracy
 on standard benchmarks and reduces the tendency of deep models to
 over-fit to noise in short-horizon lookback windows.
 
-\begin{revision}
+\begin{changedcontent}
 The benefit of decomposition in traffic-specific spatio-temporal models is
 less settled. ASTAF-R compares learned fusion with fixed, equal, trend-heavy,
 and decomposition-disabled alternatives. Their close validation errors do not
 identify one fusion rule as uniquely effective, so decomposition is presented
 as an evaluated representation choice rather than a generally optimal module.
-\end{revision}
+\end{changedcontent}
 
 % ------------------------------------------------------------
 \subsection{Multi-Scale Temporal Modeling}
@@ -414,7 +395,7 @@ shallower and more interpretable than stacked dilated architectures
 and provides an explicit fusion mechanism that can be inspected
 to understand which scale the model relies on most.
 
-\begin{revision}
+\begin{changedcontent}
 Related multifrequency forecasting work studies a different fusion problem.
 Xiao and Liu~\cite{xiao2025multifrequency} integrate heterogeneous exogenous
 variables sampled at different frequencies for carbon-price prediction.
@@ -422,7 +403,7 @@ ASTAF-R uses one traffic-speed feature sampled uniformly every five minutes;
 its ``multi-scale'' branches are different receptive fields over the same
 frequency, not heterogeneous-frequency alignment. This distinction narrows
 the model's data-fusion claim.
-\end{revision}
+\end{changedcontent}
 
 % ------------------------------------------------------------
 \subsection{Model Validation and Ablation Practices}
@@ -432,7 +413,7 @@ Survey studies on deep learning for traffic forecasting~\cite{yin2022deeplearnin
 
 STID~\cite{shao2022stgcn} provided a striking counterexample that a simple spatio-temporal identity baseline using only node embeddings and time-of-day features, and no graph convolution or attention, could match or exceed the performance of complex GNN-based models on a number of benchmarks. This result challenged the assumption that architectural complexity is necessary for competitive performance, and inspired more careful ablation practices.
 
-\begin{revision}
+\begin{changedcontent}
 ASTAF-R uses ablation as a hypothesis-generation tool: candidate mechanisms
 are isolated before being tested under the complete benchmark protocol. The
 the evidence shows that reduced-sample ablations are not sufficient for
@@ -440,17 +421,17 @@ component selection, because the attention ranking changes after full-data
 training. The resulting contribution is therefore an auditable development
 workflow and evidence trail, not a claim that every initial choice was
 validated.
-\end{revision}
+\end{changedcontent}
 
 % ------------------------------------------------------------
 \subsection{Positioning of ASTAF-R}
 % ------------------------------------------------------------
 
-\begin{revision}
+\begin{changedcontent}
 Table~\ref{tab:related_summary} positions ASTAF-R by architectural
 mechanism. It records presence rather than superiority. The evaluated ASTAF-R
 is deterministic and contains no uncertainty head.
-\end{revision}
+\end{changedcontent}
 
 \begin{table}[H]
 \centering
@@ -498,13 +479,13 @@ ASTAF (base)
 \end{tabular}
 \end{table}
 
-\begin{revision}
+\begin{changedcontent}
 ASTAF-R combines mechanisms that also occur individually in earlier models.
 Its distinguishing research procedure is the explicit connection between
 pilot hypotheses, complete-data tests, and reported sensitivity results. This
 does not imply that the resulting configuration is unique or superior to all
 graph-based forecasting models.
-\end{revision}
+\end{changedcontent}
 
 % ============================================================
 % ASTAF-R: SCI Q1 Manuscript
@@ -514,7 +495,7 @@ graph-based forecasting models.
 \section{Problem Formulation}
 \label{sec:problem}
 
-In this section, we formally define the multi-horizon traffic forecasting problem addressed by ASTAF-R, introduce the mathematical notations used throughout the paper, and describe the evaluation metrics used in all experiments. \rev{The evaluated model produces deterministic point forecasts; probabilistic heads are outside the present scope.}
+In this section, we formally define the multi-horizon traffic forecasting problem addressed by ASTAF-R, introduce the mathematical notations used throughout the paper, and describe the evaluation metrics used in all experiments. \chg{The evaluated model produces deterministic point forecasts; probabilistic heads are outside the present scope.}
 
 % ------------------------------------------------------------
 \subsection{Network and Observation Model}
@@ -539,7 +520,7 @@ described by an observation matrix:
 \end{equation}
 %
 where $F$ is the number of observed features per sensor at each
-time step. \rev{In both METR-LA and PeMS-BAY, $F = 1$
+time step. \chg{In both METR-LA and PeMS-BAY, $F = 1$
 and the single feature is traffic speed.} The observation
 at node $i$ and time $t$ is denoted $x_{i,t} \in \mathbb{R}^{F}$.
 
@@ -611,7 +592,7 @@ the ASTAF-R architecture description in Section~\ref{sec:method}.
 % ------------------------------------------------------------
 
 The model parameters $\theta$ are optimized by minimizing
-\rev{masked mean absolute error between predicted and observed
+\chg{masked mean absolute error between predicted and observed
 speed values} over all training samples, sensors,
 and horizon steps:
 %
@@ -624,7 +605,7 @@ and horizon steps:
 \end{equation}
 %
 where $M$ is the total number of scalar prediction targets,
-\rev{$m_i\in\{0,1\}$ excludes unavailable targets,}
+\chg{$m_i\in\{0,1\}$ excludes unavailable targets,}
 across all samples, sensors, and horizon steps in the
 training set, $y_i$ is the $i$-th ground-truth normalized
 speed observation, and $\hat{y}_i$ is the corresponding
@@ -642,12 +623,12 @@ needed; all references to MAE in Sections~\ref{sec:setup}
 and~\ref{sec:results} refer to the same quantity defined
 here.
 
-\begin{revision}
+\begin{changedcontent}
 ASTAF-R produces deterministic point forecasts. Probabilistic forecasting is
 outside the evaluated contribution. A future extension would require explicit
 distributional or quantile training and evaluation with coverage, interval
 width, calibration error, and proper scoring rules.
-\end{revision}
+\end{changedcontent}
 
 % ------------------------------------------------------------
 \subsection{Evaluation Metrics}
@@ -661,7 +642,7 @@ together they provide a complete characterization of model
 behavior across the 12-step prediction horizon.
 
 \paragraph{Mean Absolute Error (MAE).}
-Equation.~\eqref{eq:loss} defines MAE as the average magnitude of prediction errors regardless of their direction. Because it is linear in error size and treats over- and under-prediction equally, it serves as the primary metric. \rev{Metrics are evaluated after inverse transformation into the original speed scale. Thus an MAE of $\delta$ means that the average valid forecast differs from the observation by $\delta$ miles per hour.}
+Equation~\eqref{eq:loss} defines MAE as the average magnitude of prediction errors regardless of direction. Because it is linear in error size and treats over- and under-prediction equally, it serves as the primary metric. \chg{Metrics are evaluated after inverse transformation into the original speed scale. Thus, an MAE of $\delta$ means that the average valid forecast differs from the observation by $\delta$ miles per hour.}
 
 \paragraph{Root Mean Square Error (RMSE).}
 RMSE measures the square root of the average squared
@@ -674,7 +655,7 @@ prediction error:
     \label{eq:rmse}
 \end{equation}
 %
-RMSE is more susceptible to outlier predictions than MAE since the squaring procedure magnifies big individual mistakes before to averaging. Large prediction errors in traffic forecasting usually occur during horizon stages, such as congestion start or clearance events, where speed switches abruptly. For incident response and signal timing applications, a model with a lower RMSE in relation to MAE is consequently more adept at managing these abrupt changes. In every results table, RMSE is presented alongside MAE as the secondary main metric.
+RMSE is more sensitive than MAE to large individual errors because it squares each residual before averaging. Such errors often occur during the onset or clearance of congestion, when speed changes abruptly. RMSE is therefore reported with MAE to show whether a model controls these larger deviations.
 
 \paragraph{Mean Absolute Percentage Error (MAPE).}
 MAPE expresses the average prediction error as a
@@ -704,13 +685,13 @@ ablation rankings, and architectural conclusions in this
 paper.
 
 \paragraph{Original-scale metrics.}
-\begin{revision}
+\begin{changedcontent}
 Normalization is used for optimization, but all reported MAE, RMSE, and MAPE
 values are calculated after inverse transformation into the original speed
 scale. Training-period statistics are reused without re-estimation for
 validation and test windows. This avoids mixing normalized pilot scores with
 operationally interpretable full-data results.
-\end{revision}
+\end{changedcontent}
 
 % ------------------------------------------------------------
 \subsection{Problem Scope and Assumptions}
@@ -721,17 +702,17 @@ paper and are stated explicitly here to support reproducibility
 and fair comparison.
 
 \textbf{Closed-world sensor network.} The model is trained and
-evaluated on a fixed set of \rev{$N=207$ METR-LA sensors or $N=325$
+evaluated on a fixed set of \chg{$N=207$ METR-LA sensors or $N=325$
 PeMS-BAY sensors}. No sensor addition,
 removal, or failure is modeled. All sensors are assumed to provide
 valid observations at every time step after standard preprocessing.
 
 \textbf{Fixed sampling frequency.} All observations are at a
-fixed five-minute interval. \rev{Values encoded as unavailable are masked
+fixed five-minute interval. \chg{Values encoded as unavailable are masked
 from the objective and metrics; irregular sampling and variable-rate
 prediction remain outside scope.}
 
-\textbf{Single-feature input.} \rev{Both benchmarks provide speed as the
+\textbf{Single-feature input.} \chg{Both benchmarks provide speed as the
 modeled feature.} The model architecture supports $F > 1$ feature
 dimensions through the batch tensor format in
 Eq.~\eqref{eq:batch_tensors}, but all verified experiments use
@@ -742,36 +723,35 @@ $F = 1$.
 
 
 \textbf{Protocol-specific inference.}
-\begin{revision}
+\begin{changedcontent}
 The reported component effects apply to the two datasets, model
 implementations, random seeds, and optimization schedule tested here. They
 are not interpreted as universal architectural laws.
-\end{revision}
-
-% ============================================================
-% ASTAF-R: SCI Q1 Manuscript
-% SECTION 4: Dataset Description and Dependency Structure
-% ============================================================
+\end{changedcontent}
 
 \section{Dataset Description and Dependency Structure}
 \label{sec:data}
 
-The traffic dataset utilised in the validated tests, the preprocessing pipeline used prior to model training, and a correlation analysis of the sensor network that supports ASTAF-R's spatially adaptive modelling method are all described in this part. Interpreting the experimental results given in Section~\ref{sec:results} and the architectural decisions made in Section~\ref{sec:method} requires an understanding of the statistical structure of the data.
+This section describes the two traffic-speed benchmarks, preprocessing, and
+exploratory sensor dependencies. These details provide the data context for
+the architecture in Section~\ref{sec:method} and the evidence in
+Section~\ref{sec:results}.
 
-% ------------------------------------------------------------
 \subsection{METR-LA Dataset}
-% ------------------------------------------------------------
 
-METR-LA, a popular benchmark for traffic speed predictions gathered from loop detectors placed across the Los Angeles County, California, highway network, is the main dataset utilised in all validated tests. The dataset includes observations from $N = 207$ sensors that were taken during a roughly four-month period at five-minute intervals. The dataset has 34,272 time steps in total, which equates to around 2,856 hours of continuous observation. Every sensor logs the speed of the traffic in miles per hour. The main statistical characteristics of the METR-LA dataset are compiled in Table~\ref{tab:dataset_stats}.
+METR-LA contains 34,272 five-minute speed observations from $N=207$ loop
+detectors on Los Angeles County freeways. The approximately four-month series
+covers 2,856 hours, and speeds are measured in miles per hour. Table~\ref{tab:dataset_stats}
+summarizes both benchmarks and their window counts.
 
 
 
 \begin{table*}[htbp]
 \centering
-\caption{\rev{Dataset and chronological raw-split/window summary for the
+\caption{\chg{Dataset and chronological raw-split/window summary for the
 full-data experiments.}}
 \label{tab:dataset_stats}
-{\color{revisionblue}
+{\color{changeblue}
 \renewcommand{\arraystretch}{1.2}
 \begin{tabular}{lrrrrrr}
 \toprule
@@ -795,7 +775,7 @@ primarily governed by freeway flow theory, with congestion
 propagating upstream from bottlenecks in patterns that graph-based
 models are well suited to capture.
 
-\begin{revision}
+\begin{changedcontent}
 \subsection{PeMS-BAY Dataset}
 PeMS-BAY contains 52,105 five-minute speed observations from 325 sensors in
 the San Francisco Bay Area freeway network. It provides an independent
@@ -803,14 +783,14 @@ network with more sensors and a longer observation period than METR-LA. The
 same 12-input/12-output, stride-one, chronological 70/10/20 protocol is used
 for both datasets. It forms the independent second benchmark in the
 confirmatory evaluation.
-\end{revision}
+\end{changedcontent}
 % ------------------------------------------------------------
 \subsection{Data Preprocessing}
 % ------------------------------------------------------------
 
 
 
-\begin{revision}
+\begin{changedcontent}
 For each dataset, the raw timeline is partitioned chronologically into 70\%
 training, 10\% validation, and 20\% test segments before window construction.
 Independent 12-input/12-output windows are then constructed with stride one
@@ -833,7 +813,7 @@ dataset release with MD5
 supplied with the experiment archive. Reference graphs are used by the
 appropriate baselines and graph-agreement diagnostics. ASTAF-R itself learns
 its adaptive adjacency from node embeddings.
-\end{revision}
+\end{changedcontent}
 
 % ------------------------------------------------------------
 % ------------------------------------------------------------
@@ -841,7 +821,7 @@ its adaptive adjacency from node embeddings.
 
 \subsection{Exploratory dependency and temporal structure}
 
-\begin{revision}
+\begin{changedcontent}
 Figure~\ref{fig:heatmap} presents an exploratory Pearson
 correlation visualization for the first 50 METR-LA sensors. It shows that
 traffic-speed dependencies are heterogeneous and motivates testing an
@@ -853,7 +833,7 @@ generalization.
 \centering
 \includegraphics[width=0.77\linewidth]{%
     fig01_metr_la_correlation_heatmap.pdf}
-\caption{\rev{Exploratory Pearson correlation heat maps for the first 50
+\caption{\chg{Exploratory Pearson correlation heat maps for the first 50
 METR-LA sensors. Panel (a) uses the first day, and panel (b) averages five
 sampled days. The visualization motivates a learned topology but is
 insufficient by itself to establish whole-network stability; quantitative
@@ -872,7 +852,7 @@ behavior motivates testing trend, recurrent seasonal, and residual
 representations, but the contribution of decomposition and its fusion
 weights is determined experimentally rather than inferred from the
 exploratory plots.
-\end{revision}
+\end{changedcontent}
 
 \section{ASTAF-R Framework}
 \label{sec:method}
@@ -884,13 +864,13 @@ No quantile or probabilistic output head is used in the evaluated model.
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=\textwidth]{ASTAFR_round2_architecture.pdf}
+\includegraphics[width=\textwidth]{ASTAFR_architecture.pdf}
 \caption{ASTAF-R deterministic forecasting pipeline. The candidate
 configuration was selected from validation results before locked testing.}
 \label{fig:architecture}
 \end{figure*}
 
-\begin{revision}
+\begin{changedcontent}
 \subsection{Ordered multi-scale temporal representation}
 For each temporal scale $q\in\{1,3,6\}$, a one-dimensional convolution acts
 independently on every sensor history. Even-width padding is cropped to retain
@@ -1090,7 +1070,7 @@ tensor; graph propagation and spatial attention therefore have a dominant
 $\mathcal{O}(BN^2d)$ term. A sparse-kernel implementation could reduce message
 aggregation toward $\mathcal{O}(BNkd)$, but that optimization is not included
 in the reported latency or memory measurements.
-\end{revision}
+\end{changedcontent}
 
 \section{Experimental Setup}
 \label{sec:setup}
@@ -1111,7 +1091,21 @@ mask so unavailable values do not contribute to loss or metrics. The forecast
 horizons are 15, 30, and 60 minutes at steps 3, 6, and 12, in addition to
 aggregate 12-step MAE, RMSE, and MAPE.
 
-\begin{revision}
+Table~\ref{tab:split_timestamps} records the first and last input and target
+timestamps formed inside every split. The one-step separation between the last
+target of a segment and the first input of the next segment confirms that no
+raw observation is reused across boundaries.
+\begin{table*}[t]
+\centering
+\caption{Exact temporal endpoints of the independently constructed windows.
+PeMS-BAY timestamps include the recorded Pacific-time UTC offset; METR-LA
+timestamps are reported as stored in the dataset index.}
+\label{tab:split_timestamps}
+\scriptsize
+\resizebox{\textwidth}{!}{\input{tables/split_timestamp_boundaries.tex}}
+\end{table*}
+
+\begin{changedcontent}
 Algorithm~\ref{alg:leakage_free_windows} states the boundary procedure
 explicitly. A candidate start index is accepted only when its full 24-step
 input--target span is contained in one raw segment. This excludes all
@@ -1138,7 +1132,7 @@ $\mathbf{V}_{b_0:b_1-1}$ only
 \State \Return training, validation, and test windows with raw indices
 \end{algorithmic}
 \end{algorithm}
-\end{revision}
+\end{changedcontent}
 
 \subsection{Selection and locked evaluation}
 Nine principal candidates were trained with seeds 11, 22, and 33 on both
@@ -1158,7 +1152,7 @@ method-specific tuning studies, so differences are interpreted only within
 this protocol. Runs used Python 3.13.9, PyTorch 2.11.0 with CUDA 12.8, NumPy
 2.5.1, and an NVIDIA GeForce RTX 5060 Laptop GPU with 7.96 GiB memory.
 
-\begin{revision}
+\begin{changedcontent}
 Table~\ref{tab:baseline_settings} makes the common-code scope auditable.
 Every learned model uses Adam, batch size 64, learning rate $10^{-3}$, weight
 decay $10^{-5}$, a 60-epoch cap, patience 10, and seeds 11, 22, and 33.
@@ -1187,7 +1181,24 @@ ASTAF-R & Selected architecture in Section~\ref{sec:method} & Learned top-40 gra
 \bottomrule
 \end{tabular}
 \end{table*}
-\end{revision}
+\end{changedcontent}
+
+Published numbers provide useful context but do not constitute a controlled
+comparison because data treatment, software, optimization, and reporting
+details differ. Table~\ref{tab:literature_context} therefore lists selected
+official-repository or original-paper horizon MAEs separately from the
+common-code experiment. No statistical ranking is inferred across these rows.
+\begin{table*}[t]
+\centering
+\caption{Non-harmonized literature context: horizon-wise MAE reported by the
+DCRNN official repository and the original Graph WaveNet and AGCRN papers
+\cite{li2018dcrnn,wu2019graphwavenet,bai2020agcrn}, alongside ASTAF-R under
+the present protocol. These values are not treated as a head-to-head
+experiment.}
+\label{tab:literature_context}
+\small
+\resizebox{\textwidth}{!}{\input{tables/literature_context.tex}}
+\end{table*}
 
 \subsection{Statistical and computational analysis}
 We report sample mean and sample standard deviation across seeds. Seed-paired
@@ -1218,7 +1229,7 @@ deviations are across seeds 11, 22, and 33.}
 \input{tables/selection.tex}
 \end{table*}
 
-\begin{revision}
+\begin{changedcontent}
 Figure~\ref{fig:validation_sensitivity} broadens the validation view beyond
 the six closest candidates in Table~\ref{tab:selection}. Dark bars denote
 three-seed principal candidates and light bars denote seed-11 diagnostic
@@ -1234,7 +1245,22 @@ candidate within that dataset. The annotation gives the number of seeds; no
 locked-test metric is used in this figure.}
 \label{fig:validation_sensitivity}
 \end{figure*}
-\end{revision}
+\end{changedcontent}
+
+The ordered seed-11 diagnostic in Table~\ref{tab:cumulative_ablation} adds one
+component at a time using the same implementation and validation split. It
+shows the largest step at calendar context, followed by graph propagation and
+residual attention. Because cumulative ablations are order-dependent and this
+diagnostic uses one seed, it complements rather than replaces the three-seed
+principal candidate analysis.
+\begin{table}[t]
+\centering
+\caption{Cumulative validation MAE for an ordered seed-11 diagnostic. Each row
+retains all components in the preceding row.}
+\label{tab:cumulative_ablation}
+\small
+\input{tables/cumulative_ablation.tex}
+\end{table}
 
 \subsection{Locked full-split comparison}
 Table~\ref{tab:main_results} reports the locked test results. ASTAF-R has the
@@ -1263,7 +1289,7 @@ show sample standard deviation across seeds.}
 \label{fig:main_mae}
 \end{figure*}
 
-\begin{revision}
+\begin{changedcontent}
 MAE alone can obscure whether a ranking depends on the error definition.
 Figure~\ref{fig:normalized_metrics} normalizes MAE, RMSE, and MAPE by the best
 model value for each dataset and metric. ASTAF-R is the unit reference on all
@@ -1309,7 +1335,7 @@ early stopping.
 uses the corresponding minimum-validation checkpoint.}
 \label{fig:training_curves}
 \end{figure*}
-\end{revision}
+\end{changedcontent}
 
 \subsection{Seed and calendar-day variability}
 ASTAF-R is lower than every comparison for each matched seed. Exact seed
@@ -1318,6 +1344,9 @@ calendar-day block analysis in Table~\ref{tab:statistics} uses 24 METR-LA and
 37 PeMS-BAY day blocks per seed. Every 95\% bootstrap interval for ASTAF-R minus
 a comparison remains below zero, showing that the aggregate differences are
 not driven by a small set of overlapping windows.
+Resampling whole days reduces the dependence induced by stride-one windows,
+but it does not remove serial dependence between adjacent days; a moving
+multi-day block analysis would be a useful additional robustness check.
 
 \begin{table*}[t]
 \centering
@@ -1348,6 +1377,21 @@ top-40 weights.}
 \label{tab:graph_stability}
 \resizebox{\columnwidth}{!}{\input{tables/graph_stability.tex}}
 \end{table}
+
+The uniformity is also visible in Table~\ref{tab:graph_diagnostics}. Entropy
+equals $\log(40)$, top-10 mass is $10/40$, and the largest edge weight is
+$1/40$. Correlation and top-20 overlap with the reference graph are near zero,
+so the deterministic support is neither a quantitative reconstruction of the
+provided road graph nor evidence of meaningful learned neighborhoods.
+\begin{table*}[t]
+\centering
+\caption{Within-graph diagnostics for the selected top-40 support. Correlation
+and Jaccard compare the learned-weight matrix with the supplied reference
+adjacency; values are averaged over the restored seed checkpoints.}
+\label{tab:graph_diagnostics}
+\small
+\input{tables/graph_diagnostics.tex}
+\end{table*}
 
 \begin{figure*}[t]
 \centering
@@ -1385,7 +1429,7 @@ are not hardware-independent model properties.}
 \resizebox{\textwidth}{!}{\input{tables/efficiency.tex}}
 \end{table*}
 
-\begin{revision}
+\begin{changedcontent}
 Figure~\ref{fig:efficiency} visualizes the same deployment trade-off. ASTAF-R
 uses fewer profiler operations than several graph-recurrent controls but more
 parameters and substantially more memory and latency than STID- and
@@ -1401,7 +1445,7 @@ allocated GPU memory, parameter count, and profiler operations; these
 engineering measurements are environment-specific.}
 \label{fig:efficiency}
 \end{figure*}
-\end{revision}
+\end{changedcontent}
 
 \subsection{Scope of the evidence}
 The experiments cover two California freeway-speed datasets with regular
@@ -1409,7 +1453,12 @@ five-minute sampling and no exogenous weather, event, or incident variables.
 They do not establish transfer to other cities, irregular sampling, flow or
 occupancy targets, distribution shift, or heterogeneous multi-frequency
 covariates. The deterministic evaluation also does not establish calibrated
-uncertainty forecasting.
+uncertainty forecasting. The broader sensitivity inventory includes several
+single-scale and paired-scale controls, but not a scale-6-only model or every
+possible receptive-field set; it therefore supports robustness around the
+chosen configuration rather than a unique optimum. Calendar-context removal
+and the non-principal graph controls are seed-11 diagnostics, so they are not
+assigned the same evidential weight as the three-seed principal candidates.
 
 \FloatBarrier
 \section{Conclusion and Future Work}
@@ -1443,7 +1492,7 @@ run-level JSON and NumPy artifacts; generated analysis tables; and commands for
 reproducing the study. Exact raw-split boundaries and the absence of
 cross-split raw-observation overlap are recorded in every locked-test run.
 
-\begin{revision}
+\begin{changedcontent}
 \subsection{Horizon-wise numerical results}
 Figure~\ref{fig:horizon} gives the complete trend; Table~\ref{tab:full_horizons}
 provides the corresponding values for ASTAF-R and the closest aggregate-MAE
@@ -1568,7 +1617,7 @@ Efficiency profile & run JSON profiler fields & Parameters, operations, latency,
 \bottomrule
 \end{tabular}
 \end{table*}
-\end{revision}
+\end{changedcontent}
 
 \FloatBarrier
 
@@ -1596,16 +1645,16 @@ at \url{https://doi.org/10.5281/zenodo.5724362} and
 \url{https://doi.org/10.5281/zenodo.5146275}.
 
 \section*{Code Availability}
-\begin{revision}
+\begin{changedcontent}
 The complete source code, preprocessing, model and compact baseline
 implementations, configuration values, dependencies, seeds, training and
 evaluation commands, and analysis scripts are publicly available at
 \url{https://github.com/shishirbit/ASTAF-R-reproducibility}. The matching
 versioned reproducibility package has the reserved Zenodo DOI
-\url{https://doi.org/10.5281/zenodo.23611484}; the deposit will be published
-before journal resubmission so that the DOI resolves publicly.
-\end{revision}
+\url{https://doi.org/10.5281/zenodo.23611484}.
+\end{changedcontent}
 
 \bibliography{reference}
 
 \end{document}
+

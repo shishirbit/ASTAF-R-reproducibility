@@ -10,108 +10,122 @@
 \noindent Manuscript: \textit{ASTAF-R: An Ablation-Guided Spatio-Temporal Framework for Multi-Horizon Traffic Prediction}
 
 \section*{In-house editor}
-\textbf{Comment.} Make the complete source code and all materials required to
-reproduce the experiments publicly available, and provide a direct repository link.
+\textbf{Comment.} Make the complete source code and all materials required to reproduce the experiments publicly available, and provide a direct repository link in the Code Availability statement.
 
-\response{The complete preprocessing, model, training, evaluation, compact
-baseline, analysis, and figure-generation code is publicly accessible at
-\url{https://github.com/shishirbit/ASTAF-R-reproducibility}. The repository includes dependency specifications,
-configuration values, seeds 11/22/33, data instructions, exact commands, and
-run metadata. Zenodo has reserved the version DOI
-\url{https://doi.org/10.5281/zenodo.23611484} for the matching reproducibility
-package. The deposit will be published before journal resubmission so that the
-DOI resolves publicly. The manuscript Code Availability statement contains
-direct links to both records.}
+\response{The complete preprocessing, model, training, evaluation, compact baseline, analysis, and figure-generation code is publicly accessible at \url{https://github.com/shishirbit/ASTAF-R-reproducibility}. The repository includes dependency specifications, configuration files, seeds 11/22/33, data instructions, exact commands, run metadata, and machine-readable outputs. The matching Zenodo deposit has reserved DOI \url{https://doi.org/10.5281/zenodo.23611484}. This DOI must be made public by publishing the deposit before the response package is submitted; the manuscript Code Availability statement gives both direct links.}
 
 \section*{Reviewer 1}
-\textbf{Comment 1.} Ensure that stride-one 12-to-12 windows do not generate
-overlap leakage across split boundaries and report precise boundary management.
+\textbf{Comment 1.} Ensure that stride-one 12-to-12 windows do not produce overlap leakage across training, validation, and test boundaries.
 
-\response{The raw timeline is now split before any windows are constructed.
-Windows are generated independently inside each segment. METR-LA uses raw
-intervals [0,23990), [23990,27417), and [27417,34272), producing
-23,967/3,404/6,832 windows. PeMS-BAY uses [0,36473), [36473,41683), and
-[41683,52105), producing 36,450/5,188/10,398 windows. Every run records the
-first and last input and target timestamps. The raw-observation intersections
-between training, validation, and test sets are empty.}
+\response{The raw timeline is split before window construction, and windows are generated independently inside each segment. The algorithm accepts a start index only when its complete 12-step input and 12-step target are contained in one segment. The raw-observation intersection between every pair of splits is therefore empty. The manuscript includes the algorithm, raw index intervals, window counts, and a machine-readable split audit.}
 
-\textbf{Comment 2.} Strengthen the justification for DCRNN-, STGCN-, Graph
-WaveNet-, AGCRN-, STID-, and Transformer-style baselines, which are compact
-reimplementations rather than official implementations.
+\textbf{Comment 2.} Report the precise temporal boundary management, including the final training timestamps and the first validation and test inputs and targets.
 
-\response{We retain these models strictly as compact common-code controls.
-The manuscript now states this limitation in the abstract, experimental setup,
-results, captions, conclusion, and Code Availability statement. All controls
-share identical windows, masks, optimizer family, stopping rule, and metrics.
-We do not describe them as faithful official reproductions and make no claim
-against the best published or officially tuned versions.}
+\response{A new table reports the first and last input and target timestamps for all six dataset--split combinations. For example, the last METR-LA training target is 23 May 2012 07:05 and the first validation input is 07:10; the last validation target is 4 June 2012 04:40 and the first test input is 04:45. The table provides the corresponding PeMS-BAY values with their UTC offsets.}
 
-\textbf{Comment 3.} Clarify component selection because the two-block,
-top-$k=20$ model slightly outperforms one graph block and top-$k=40$ on one
-validation comparison, and learned decomposition is similar to simpler alternatives.
+\textbf{Comment 3.} Strengthen comparison using faithful official baseline implementations rather than only compact reimplementations.
 
-\response{Selection is now stated exactly. Nine principal candidates were run
-with three seeds on both datasets, and the frozen criterion was mean
-across-dataset relative validation MAE. The two-block top-$k=40$ candidate had
-a relative score of 1.000691, compared with 1.000794 for two-block top-$k=20$;
-the one-block candidate scored 1.003317. The difference is narrow, and the
-manuscript does not claim a unique optimum. Decomposition-disabled, fixed, and
-learned variants are all reported; their close performance is explicitly
-interpreted as insufficient evidence for a uniquely superior fusion rule.}
+\response{We agree that official reruns would provide stronger external evidence. They were not executed in this study. The manuscript now labels every local implementation ``style,'' describes the models as compact common-code controls, and removes any claim that they reproduce official checkpoints or the best published configuration. Official-repository reruns remain an explicit limitation and future experiment.}
 
-\textbf{Comment 4.} Confirm the reported cross-seed graph correlation and
-top-20 Jaccard values of 1.000 with greater precision and initialization detail.
+\textbf{Comment 4.} Baseline-specific optimization and tuning should be reported rather than relying on one shared training recipe.
 
-\response{The values are 1.000000000000 for all six seed pairs. A checkpoint
-audit revealed why: although source and target graph embeddings were initialized
-with seed-dependent Xavier-uniform values, both matrices have zero norm at every
-restored best checkpoint. All logits are therefore zero; deterministic top-$k$
-tie handling selects the same 40 entries, each with weight 0.025. We now report
-this as graph-parameter collapse, not remarkable adaptive-topology robustness.
-The title and claims no longer rely on learned-topology recovery.}
+\response{A configuration table now reports the architecture-specific settings and the shared optimizer, batch size, learning rate, weight decay, epoch cap, patience, checkpoint rule, and seeds. The shared recipe ensures pipeline control but is not presented as exhaustive method-specific tuning. The text states that this design can disadvantage individual baselines and confines the comparison claim accordingly.}
 
-\textbf{Comment 5.} Account more effectively for seed variability.
+\textbf{Comment 5.} The weak results of some compact baselines require stronger justification.
 
-\response{All learned primary models now use seeds 11, 22, and 33. ASTAF-R
-obtains 2.995$\pm$0.008 mph on METR-LA and
-1.542$\pm$0.001 mph on PeMS-BAY. We provide
-seed-paired differences and exact sign-flip tests, while noting that three seeds
-give a minimum two-sided exact $p$ value of 0.25. We additionally aggregate
-errors into non-overlapping calendar-day blocks (24 days per METR-LA seed and
-37 per PeMS-BAY seed) and report deterministic 10,000-repetition bootstrap
-intervals.}
+\response{The manuscript no longer interprets the gaps as evidence about the named methods in general. It distinguishes common-code controls from official systems in the abstract, methods, captions, results, and conclusion. This is a scope correction rather than a claim that the local gaps validate superiority over official implementations.}
 
-\textbf{Comment 6.} Discuss the trade-off between accuracy and substantially
-higher inference memory/latency than simpler baselines.
+\textbf{Comment 6.} Add a separate comparison with published or official literature values.
 
-\response{A dedicated efficiency table now reports parameter count, profiler
-FLOPs, synchronized inference latency, and peak GPU memory for each dataset and
-model. The discussion states directly that ASTAF-R is not preferred when minimum
-latency or memory dominates accuracy and that the measurements are specific to
-the recorded laptop GPU and software environment.}
+\response{A new non-harmonized literature-context table reports the 15-, 30-, and 60-minute MAEs from the DCRNN official repository and the original Graph WaveNet and AGCRN papers, alongside ASTAF-R values. The table is deliberately separate from the controlled experiment and states that protocol differences preclude a statistical head-to-head ranking.}
 
-\textbf{Comment 7.} Keep generality claims minimal because evaluation is
-limited to two regularly sampled California freeway-speed datasets without
-exogenous variables.
+\textbf{Comment 7.} Clarify the novelty because the individual architectural components are established.
 
-\response{The abstract, Results, Scope, and Conclusion now limit every claim to
-the controlled METR-LA and PeMS-BAY protocol. We explicitly exclude claims of
-universal superiority, geographic transfer, irregular-sampling robustness,
-exogenous-variable fusion, and calibrated uncertainty forecasting.}
+\response{The contribution is now framed as an integrated, validation-locked selection and audit workflow rather than invention of every component. The Related Work and method-positioning text distinguish the established temporal, decomposition, graph, attention, and residual mechanisms from the study's combination, leakage controls, locked evaluation, and diagnostic evidence.}
+
+\textbf{Comment 8.} Reconcile the graph-depth evidence because one block was competitive with two blocks.
+
+\response{Nine principal candidates were repeated over three seeds on both datasets. The frozen criterion was mean across-dataset relative validation MAE. The one-block model scored 1.003317, while the selected two-block top-40 model scored 1.000691. The difference is reported as narrow; no unique or universal two-block optimum is claimed.}
+
+\textbf{Comment 9.} Clarify why top-$k=40$ was selected when top-$k=20$ was slightly better on one validation comparison.
+
+\response{The two-block top-20 candidate was slightly lower on METR-LA, whereas top-40 was lower on PeMS-BAY. Their across-dataset scores were 1.000794 and 1.000691, respectively, so the prespecified aggregate criterion selected top-40. Both dataset-specific values and the narrow aggregate difference are reported.}
+
+\textbf{Comment 10.} The learned decomposition is close to simpler alternatives and should not be presented as uniquely superior.
+
+\response{Decomposition-disabled, fixed-weight, and learned variants are now reported over three seeds on both validation sets. Their close values are explicitly interpreted as insufficient evidence for a uniquely superior fusion rule. The contribution language has been moderated accordingly.}
+
+\textbf{Comment 11.} Clarify which sensitivity experiments use one seed and which use multiple seeds.
+
+\response{The manuscript separates nine principal three-seed candidates from twenty broader seed-11 diagnostics. Tables and the sensitivity figure display the seed count, and single-seed rows are not assigned an artificial standard deviation or treated as equally strong evidence.}
+
+\textbf{Comment 12.} Provide a true cumulative ablation that adds components sequentially.
+
+\response{A new cumulative table reports seed-11 validation MAE for the temporal encoder, then ordered history, calendar context, decomposition, graph propagation, residual attention, and residual decoding. The text notes that this diagnostic is order-dependent and complements, rather than replaces, the three-seed principal candidate analysis.}
+
+\textbf{Comment 13.} Strengthen the residual-decoder ablation.
+
+\response{The residual-decoder-disabled principal candidate is repeated with seeds 11, 22, and 33 on both datasets and appears in the selection table. The cumulative diagnostic also reports the incremental change when residual decoding is added last.}
+
+\textbf{Comment 14.} Strengthen evidence for calendar-context embeddings.
+
+\response{Calendar-context removal and the ordered cumulative addition are reported, but they are seed-11 diagnostics. The manuscript now identifies that evidence level explicitly and does not assign it the same strength as the three-seed principal experiments.}
+
+\textbf{Comment 15.} Expand the temporal-scale study, including individual scales and alternative receptive-field combinations.
+
+\response{The complete inventory reports scale-1, scale-3, paired 1/3, 1/6, 3/6, and full 1/3/6 controls. A scale-6-only model and all possible receptive fields were not run. The Scope subsection now states this limitation and describes the results as local robustness evidence rather than proof of a unique temporal-scale optimum.}
+
+\textbf{Comment 16.} Clarify the meaning of ``recurrent-seasonal'' decomposition.
+
+\response{The method now defines this term operationally: a GRU transforms the residual sequence and its outputs are averaged over time. The manuscript also states that the resulting channel is a learned feature and not an identifiable classical seasonal decomposition.}
+
+\textbf{Comment 17.} Verify the graph correlations and Jaccard values of 1.000 with greater precision and give initialization details.
+
+\response{All six seed-pair values are 1.000000000000. Source and target graph embeddings are initialized independently using the run seed and Xavier-uniform initialization, but both matrices have zero norm in every restored best checkpoint. Zero logits and deterministic top-$k$ tie handling therefore produce identical supports. The result is described as parameter collapse, not adaptive-topology robustness.}
+
+\textbf{Comment 18.} Report graph entropy and top-mass statistics to determine whether the adjacency is effectively uniform.
+
+\response{A new graph-diagnostic table reports row entropy 3.688879, top-10 mass 0.250000, and maximum weight 0.025000 on both datasets. These are exactly $\log(40)$, $10/40$, and $1/40$, confirming a uniform top-40 graph.}
+
+\textbf{Comment 19.} Add binary, uniform, shuffled, correlation-based, or identity graph controls.
+
+\response{The complete validation inventory now exposes the stored no-graph, identity, uniform, shuffled, and correlation-graph controls. These are seed-11 diagnostics and are labeled as such; they are used to constrain interpretation, not to support a high-confidence ranking among graph constructions.}
+
+\textbf{Comment 20.} Quantify how the selected neighborhoods relate to the reference/correlation graph.
+
+\response{The new graph table reports learned-versus-reference matrix correlation of 0.004383 on METR-LA and $-0.004980$ on PeMS-BAY, with top-20 Jaccard values 0.026558 and 0.015622. These near-zero values confirm that the deterministic uniform support should not be interpreted as recovered road topology.}
+
+\textbf{Comment 21.} Statistical analysis should respect both seed variability and temporal dependence.
+
+\response{All learned primary models use seeds 11, 22, and 33. We report sample means and sample standard deviations, seed-paired effects, exact sign-flip tests, and a 10,000-repetition calendar-day-block bootstrap that aggregates windows within day and seed before resampling. The low resolution of a three-seed exact test is stated explicitly.}
+
+\textbf{Comment 22.} Account for dependence between adjacent calendar days.
+
+\response{The manuscript now states that day-level resampling reduces the strong dependence created by overlapping stride-one windows but does not remove all serial dependence between adjacent days. A moving multi-day block bootstrap is identified as an additional robustness analysis rather than implied to have been performed.}
+
+\textbf{Comment 23.} Validate generality on a geographically distinct third dataset.
+
+\response{A third geographically distinct dataset was not evaluated. The abstract, Scope subsection, and conclusion restrict inference to two regularly sampled California freeway-speed datasets without exogenous variables and explicitly avoid claims about geographic transfer or broad generality.}
+
+\textbf{Comment 24.} Discuss the accuracy--latency--memory trade-off in a more balanced manner.
+
+\response{The computational table and accuracy--efficiency figure report parameters, profiler operations, synchronized latency, and peak GPU memory on the stated hardware. The discussion states that ASTAF-R is not preferred when minimum latency or memory dominates accuracy and that the measurements are environment-specific.}
+
+\textbf{Comment 25.} Distinguish connectivity sparsity from computational sparsity because dense $N\times N$ tensors remain.
+
+\response{This distinction is now prominent in both the abstract and complexity analysis. Top-$k$ describes retained connectivity, while the implementation still constructs dense graph and attention tensors with a dominant $\mathcal{O}(BN^2d)$ term. No sparse-kernel scaling claim is made.}
+
+\section*{Additional suggested references}
+The suggested community-detection papers were assessed for relevance. They address dynamic community discovery rather than multi-horizon traffic-speed forecasting or the evaluation questions raised here. They were therefore not added solely to increase citations; the graph discussion instead cites directly relevant traffic-forecasting and adaptive-graph sources.
 
 \section*{Summary of principal changes}
 \begin{itemize}
-\item Raw timelines are split before windows; exact temporal boundaries and
-zero overlap are recorded.
-\item Ninety-four validation runs and fifty locked-test runs are reported.
-\item Architecture selection, locked evaluation, seed analysis, and day-block
-analysis are separated.
+\item Raw timelines are split before windows, with an algorithm, exact input and target timestamps, counts, and zero-overlap records.
+\item Architecture selection is separated from locked testing, and evidence levels are distinguished by seed count.
+\item New cumulative-ablation, literature-context, and quantitative graph-audit tables have been added.
 \item Graph identity across seeds is explained as zero-embedding collapse.
-\item Accuracy--latency--memory trade-offs and baseline scope are explicit.
-\item The manuscript is deterministic and contains no uncertainty-performance claim.
-\item The mathematical specification, two algorithms, complete validation
-inventory, horizon tables, and result figures are included in the manuscript.
-\item Complete code is public, and the reserved Zenodo DOI is included; the
-matching deposit will be published before journal resubmission.
+\item Statistical and engineering limitations are stated explicitly.
+\item Claims are restricted to the two datasets and compact common-code protocol.
+\item Complete code is public; the reserved Zenodo deposit must be published so that its DOI becomes accessible before submission.
 \end{itemize}
 \end{document}
